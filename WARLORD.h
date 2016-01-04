@@ -19,7 +19,7 @@ public:
 	void SetBlood(int);
 	CHARACTERid id;
 	//others
-	ACTIONid  idleID, runID, curPoseID;
+	ACTIONid  idleID, runID, dying_AID, swingID,curPoseID;
 	//Blood
 	OBJECTid bloodBarObj;
 	GEOMETRYid bloodBar;

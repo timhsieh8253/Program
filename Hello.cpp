@@ -591,13 +591,13 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 {
 	FnCharacter actor, act_Robber, act_DonZo;
 	//test
-	FnCharacter act_sor;
+	FnCharacter act_foot;
 	float act_pos[3], act_d[3], act_f[3];
 	float Robber_pos[3], Robber_f[3], Robber_d[3];
 	float DonZo_pos[3], DonZo_f[3], DonZo_d[3];
 	actor.ID(Lyubu.id);
 	act_Robber.ID(Robber.id);
-	act_sor.ID(Sorcerer.id);
+	act_foot.ID(WarLord.id);
 
 
 	actor.GetPosition(act_pos);
@@ -620,9 +620,9 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 		if (code == FY_A)
 		{
 			//test Sorcerer
-			Sorcerer.curPoseID = Sorcerer.test_action;
-			act_sor.SetCurrentAction(0, NULL, Sorcerer.curPoseID, 5.0f);
-			act_sor.Play(START, 0.0f, FALSE, TRUE);
+			WarLord.curPoseID = WarLord.swingID;
+			act_foot.SetCurrentAction(0, NULL, WarLord.curPoseID, 5.0f);
+			act_foot.Play(START, 0.0f, FALSE, TRUE);
 
 			Lyubu.curPoseID = Lyubu.normal_attack1ID;
 			actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);

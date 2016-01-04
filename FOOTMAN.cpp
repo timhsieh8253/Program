@@ -46,7 +46,8 @@ void FOOTMAN::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK){
 	
 	idleID = actor.GetBodyAction(NULL, "Idle");
 	runID = actor.GetBodyAction(NULL, "Run");
-	dying_AID = actor.GetBodyAction(NULL, "1H_combat_mode");
+	dying_AID = actor.GetBodyAction(NULL, "Dying_A");
+	swingID = actor.GetBodyAction(NULL, "1H_swing_high_straight_down");
 	curPoseID = idleID;
 	actor.SetCurrentAction(NULL, 0, curPoseID);
 	actor.Play(START, 0.0f, FALSE, TRUE);
@@ -86,7 +87,11 @@ void FOOTMAN::play(int attack_on_delay, int skip, bool action_lock){
 		actor.Play(LOOP, (float)skip, FALSE, TRUE);
 	}
 	else*/
+
+	if (curPoseID != dying_AID)
 		actor.Play(LOOP, (float)skip, FALSE, TRUE);
+	else
+		actor.Play(ONCE, (float)skip, FALSE, TRUE);
 }
 float* FOOTMAN::GetPosition()
 {

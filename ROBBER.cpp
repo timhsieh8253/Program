@@ -64,6 +64,7 @@ void ROBBER::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK){
 	maxHP = 144;
 	is_attack_frame = 0;
 	state = 0;
+	//test
 }
 void ROBBER::isattack(int index){
 	FnCharacter actor;

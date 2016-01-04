@@ -46,6 +46,8 @@ void WARLORD::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK){
 
 	idleID = actor.GetBodyAction(NULL, "Idle");
 	runID = actor.GetBodyAction(NULL, "Run");
+	swingID = actor.GetBodyAction(NULL,"2H_swing_mid_left");
+	dying_AID = actor.GetBodyAction(NULL, "Dying_A");
 	curPoseID = idleID;
 	actor.SetCurrentAction(NULL, 0, curPoseID);
 	actor.Play(START, 0.0f, FALSE, TRUE);
