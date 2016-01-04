@@ -23,7 +23,7 @@ Last Updated : 1004, 2015, Kevin C. Wang
 //Tim2016
 #define RandomWalk 1
 #define FollowActor 2
-#define StartAttacl 3
+#define StartAttacl 5
 
 float result[3];
 VIEWPORTid vID;                 // the major viewport
