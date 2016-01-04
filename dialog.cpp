@@ -10,6 +10,7 @@ dialog::dialog()
 
 dialog::~dialog()
 {
+	//aaaaa
 	if (content)
 		delete content;
 }
