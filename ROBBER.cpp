@@ -2,15 +2,8 @@
 #include "FlyWin32.h"
 
 ROBBER::ROBBER()
-{	//Lai
-	stop_flag = 0;
-	leave_with_L = 2;//2:>500 1:500~100 0: <100
-	attack_clock = 0;
-	action_lock = FALSE;
-	attacked_target = FALSE;
-
-	find_way = rand() % 2; 
-	if (find_way == 0) find_way = -1;
+{	
+	
 
 }
 
@@ -75,6 +68,15 @@ void ROBBER::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK, float init
 	HP =144;
 	maxHP = 144;
 	is_attack_frame = 0;
+
+	stop_flag = 0;
+	leave_with_L = 2;//2:>500 1:500~100 0: <100
+	attack_clock = 0;
+	action_lock = FALSE;
+	attacked_target = FALSE;
+
+	find_way = rand() % 2;
+	if (find_way == 0) find_way = -1;
 }
 void ROBBER::isattack(int attack_on_delay){
 
@@ -107,7 +109,7 @@ void ROBBER::isattack(int attack_on_delay){
 
 
 	if (curPoseID != dieID && HP <= 0){
-		is_attack_frame == 0;//Lai
+		is_attack_frame = 0;//Lai
 		attacked_target = FALSE;//Lai
 		clean_clock = 90;
 		curPoseID = dieID;
@@ -259,4 +261,60 @@ void ROBBER::SetBlood(int curHP)
 
 	FnBillboard bb(bloodBar);
 	bb.SetPositionSize(NULL, size);
+}
+int ROBBER::GetAttackClock()
+{
+	return attack_clock;
+}
+void ROBBER::SetAttackClock(int ac)
+{
+	attack_clock = ac;
+}
+int ROBBER::GetDamagedType()
+{
+	return damaged_type;
+}
+void  ROBBER::SetDamagedType(int dt)
+{
+	damaged_type = dt;
+}
+int ROBBER::GetStopFlag()
+{
+	return stop_flag;
+}
+void  ROBBER::SetStopFlag(int sf)
+{
+	stop_flag = sf;
+}
+int  ROBBER::GetLeaveWithL()
+{
+	return leave_with_L;
+}
+void  ROBBER::SetLeaveWithL(int lw)
+{
+	leave_with_L = lw;
+}
+int  ROBBER::GetFindWay()
+{
+	return find_way;
+}
+void  ROBBER::SetFindWay(int fw)
+{
+	find_way = fw;
+}
+int  ROBBER::GetCleanClock()
+{
+	return clean_clock;
+}
+void  ROBBER::SetCleanClock(int cc)
+{
+	clean_clock = cc;
+}
+float  ROBBER::GetDisWithL()
+{
+	return diswithL;
+}
+void ROBBER::SetDisWithL(float dw)
+{
+	diswithL = dw;
 }

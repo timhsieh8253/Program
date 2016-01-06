@@ -9,7 +9,7 @@ DONZO::DONZO()
 DONZO::~DONZO()
 {
 }
-void DONZO::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK){
+void DONZO::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK, float init_pos[]){
 	FnScene scene;
 	scene.ID(sID);
 	//Robber
@@ -27,9 +27,8 @@ void DONZO::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK){
 
 	//lo put the Robber on terrain
 	float fDir[3], uDir[3];
-	FnCharacter actor;
 	actor.ID(id);
-	pos[0] = 3790.0f; pos[1] = -3158.0f; pos[2] = 1000.0f;
+	pos[0] = init_pos[0]; pos[1] = init_pos[1]; pos[2] = init_pos[2];
 	fDir[0] = -1.0f; fDir[1] = -1.0f; fDir[2] = 0.0f;
 	uDir[0] = 0.0f; uDir[1] = 0.0f;uDir[2] = 1.0f;
 	actor.SetDirection(fDir, uDir);
@@ -62,12 +61,18 @@ void DONZO::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK){
 	maxHP = 288;
 	is_attack_frame = 0;
 	state = 0;
+
+	stop_flag = 0;
+	leave_with_L = 2;//2:>500 1:500~100 0: <100
+	attack_clock = 0;
+	action_lock = FALSE;
+	attacked_target = FALSE;
+
+	find_way = rand() % 2;
+	if (find_way == 0) find_way = -1;
 }
 void DONZO::isattack(int index){
 	
-	FnCharacter actor;
-	actor.ID(id);
-
 	if (curPoseID != heavy_damagedID && curPoseID != light_damagedID){
 		if (is_attack_frame > 0)
 			is_attack_frame -= 2;
@@ -100,31 +105,71 @@ void DONZO::isattack(int index){
 		actor.Play(START, 0.0f, FALSE, TRUE);
 	}
 }
-void DONZO::play(int attack_on_delay, int skip, bool action_lock){
-	FnCharacter actor;
-	actor.ID(id);
+void DONZO::attackplayer(int atk_lv)
+{
+	if (attack_clock == 0)
+	{
 
-	//Lai
-	if (curPoseID != idleID && attack_on_delay < 40 && curPoseID != dieID)
+		leave_with_L = -1;
+
+		if (atk_lv == 0)
+		{
+			attack_clock = 34;
+			curPoseID = light_attack1ID;
+		}
+		else if (atk_lv == 1)
+		{
+			attack_clock = 24;
+			curPoseID = light_attack2ID;
+		}
+		else if (atk_lv == 2)
+		{
+			attack_clock = 29;
+			curPoseID = heavy_attack1ID;
+			actor.MoveForward(2.0f, TRUE, FALSE, 0.0f, TRUE);
+
+		}
+	}
+	else if (attack_clock > 0)
+	{
+		attack_clock--;
+		if (attack_clock == 0)
+		{
+
+			leave_with_L = 0;
+		}
+	}
+
+}
+void DONZO::play(int attack_on_delay, int skip){
+	if (((curPoseID != runID && curPoseID != idleID  && curPoseID != dieID) || action_lock) && attack_on_delay < 50)
 	{
 
 		if (!action_lock)
 		{
 			action_lock = TRUE;
 			actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
+			actor.Play(ONCE, (float)skip, FALSE, TRUE);//0105
 		}
+		if (action_lock)
+			actor.Play(ONCE, (float)skip, FALSE, TRUE);
 
-		actor.Play(ONCE, (float)skip, FALSE, TRUE);
-
-		if (HP>0 && attack_on_delay == 0)
+		if (HP>0 && attack_on_delay == 0 && attack_clock == 0)
 		{
-			curPoseID = idleID;
-			actor.SetCurrentAction(0, NULL,curPoseID, 5.0f);
+			if (leave_with_L > 0)
+				curPoseID = runID;
+			else
+				curPoseID = idleID;
+
+			actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
 			action_lock = FALSE;
+
 		}
+
+
 	}
 
-	else if (curPoseID !=dieID)
+	else if (curPoseID != dieID)
 	{
 		actor.Play(LOOP, (float)skip, FALSE, TRUE);
 	}
@@ -145,11 +190,22 @@ void DONZO::SetOldFaceDir(float* f)
 	old_f[1] = f[1];
 	old_f[2] = f[2];
 }
-void DONZO::SetPosition(float* p)
+void DONZO::SetPosition(float fwd)
 {
-	pos[0] = p[0];
-	pos[1] = p[1];
-	pos[2] = p[2];
+	actor.MoveForward(fwd*1.0f, TRUE, FALSE, 0.0f, TRUE);
+
+	if (leave_with_L > 0 && curPoseID != runID)
+	{
+		curPoseID = runID;
+		actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
+		actor.Play(START, 0.0f, FALSE, TRUE);
+	}
+	else if (leave_with_L == 0 && curPoseID != idleID)
+	{
+		curPoseID = idleID;
+		actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
+		actor.Play(START, 0.0f, FALSE, TRUE);
+	}
 }
 int DONZO::GetState()
 {
@@ -167,4 +223,60 @@ void DONZO::SetBlood(int curHP)
 
 	FnBillboard bb(bloodBar);
 	bb.SetPositionSize(NULL, size);
+}
+int DONZO::GetAttackClock()
+{
+	return attack_clock;
+}
+void DONZO::SetAttackClock(int ac)
+{
+	attack_clock = ac;
+}
+int DONZO::GetDamagedType()
+{
+	return damaged_type;
+}
+void  DONZO::SetDamagedType(int dt)
+{
+	damaged_type = dt;
+}
+int DONZO::GetStopFlag()
+{
+	return stop_flag;
+}
+void  DONZO::SetStopFlag(int sf)
+{
+	stop_flag = sf;
+}
+int  DONZO::GetLeaveWithL()
+{
+	return leave_with_L;
+}
+void  DONZO::SetLeaveWithL(int lw)
+{
+	leave_with_L = lw;
+}
+int  DONZO::GetFindWay()
+{
+	return find_way;
+}
+void  DONZO::SetFindWay(int fw)
+{
+	find_way = fw;
+}
+int  DONZO::GetCleanClock()
+{
+	return clean_clock;
+}
+void  DONZO::SetCleanClock(int cc)
+{
+	clean_clock = cc;
+}
+float  DONZO::GetDisWithL()
+{
+	return diswithL;
+}
+void DONZO::SetDisWithL(float dw)
+{
+	diswithL = dw;
 }

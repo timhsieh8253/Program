@@ -231,7 +231,8 @@ void FyMain(int argc, char **argv)
 
 	//lo character init
 	Lyubu.Initiate(sID, terrainRoomID, beOK);
-	Donzo.Initiate(sID, terrainRoomID, beOK);
+	float init_pos[3] = { 3790.0f, -3158.0f, 1000.0f };
+	Donzo.Initiate(sID, terrainRoomID, beOK,init_pos);
 
 
 
@@ -345,7 +346,7 @@ void GameAI(int skip)
 
 	
 	//lo play DonZo
-	Donzo.play(attack_on_delay,skip,action_lock);
+	Donzo.play(attack_on_delay,skip);
 
 	float dif_pos[3] = { cam_pos[0] - act_pos[0], cam_pos[1] - act_pos[1], cam_pos[2] - act_pos[2] };
 
@@ -592,13 +593,13 @@ void RenderIt(int skip)
 	char posS[256], fDirS[256], uDirS[256];
 	char resulttttt[256];
 	//
-	sprintf(posS, "pos: %d %d %d", Robber[0].attack_clock, Robber[0].leave_with_L, Robber[0].attack_clock);
+	sprintf(posS, "pos: %d %d %d", Robber[0].GetAttackClock(), Robber[0].GetLeaveWithL(), Robber[0].GetAttackClock());
 	sprintf(fDirS, "facing: %8.3f %8.3f %8.3f", fDir[0], fDir[1], fDir[2]);
 
 	sprintf(uDirS, "up: %8.3f %8.3f %8.3f", uDir[0], uDir[1], uDir[2]);
 
 	sprintf
-		(resulttttt, " %8.3f %8.3f %8.3f %d %d %d %d %d %d", result[0], result[1], result[2], cur_angle, Donzo.HP, Robber[0].HP, live, next_wave, Robber[0].clean_clock);
+		(resulttttt, " %8.3f %8.3f %8.3f %d %d %d %d %d %d", result[0], result[1], result[2], cur_angle, Donzo.HP, Robber[0].HP, live, next_wave, Robber[0].GetCleanClock());
 
 	text.Write(posS, 20, 35, 255, 255, 0);
 	text.Write(fDirS, 20, 50, 255, 255, 0);
@@ -677,7 +678,7 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 				bool tar_flag = FALSE;
 				for (int i = 0; i < count_robber && !tar_flag; i++)
 				{
-					if (Robber[i].diswithL <= 130 && Robber[i].HP > 0) 
+					if (Robber[i].GetDisWithL() <= 130 && Robber[i].HP > 0) 
 					{
 						tar = i;  tar_flag = TRUE;
 					}
@@ -686,7 +687,7 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 				{
 					for (int i = 0; i < count_robber; i++)
 					{
-						if (Robber[i].diswithL>130 || Robber[i].HP == 0) continue;
+						if (Robber[i].GetDisWithL()>130 || Robber[i].HP == 0) continue;
 						if (Robber[i].HP < Robber[tar].HP) tar = i;
 					}
 				
@@ -732,7 +733,7 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 				int tar = 0;
 				for (int i = 0; i < count_robber; i++)
 				{
-					if (Robber[i].diswithL>200 || Robber[i].HP==0) continue;
+					if (Robber[i].GetDisWithL()>200 || Robber[i].HP==0) continue;
 					if (Robber[i].HP < Robber[tar].HP) tar = i;
 					Robber[i].attacked_target = TRUE;//Lai 0105
 					Robber[i].curPoseID = Robber[i].damaged2ID;
@@ -906,21 +907,22 @@ void Robber_play(float act_pos[],int skip)
 		else anyone_live = TRUE;
 		live++;
 		int run_flag = 1;
-		Robber[i].diswithL = Robber[i].dis(act_pos);
+		Robber[i].SetDisWithL(Robber[i].dis(act_pos));
 
-		if (!Robber[i].attacked_target || Robber[i].leave_with_L < 0)
+		if (!Robber[i].attacked_target || Robber[i].GetLeaveWithL() < 0)
 		{
 			//for run
-			if (Robber[i].leave_with_L >= 0)
+			if (Robber[i].GetLeaveWithL() >= 0)
 			{
-				if (Robber[i].stop_flag != 0 && frame_clock % 10 == 0)
+				if (Robber[i].GetStopFlag() != 0 && frame_clock % 10 == 0)
 				{
-					Robber[i].stop_flag--;
+					int sf = Robber[i].GetStopFlag();
+					Robber[i].SetStopFlag(--sf);
 				}
 
-				if (Robber[i].diswithL >= dis[0])
+				if (Robber[i].GetDisWithL() >= dis[0])
 				{
-					Robber[i].leave_with_L = 2;
+					Robber[i].SetLeaveWithL(2);
 					new_f[0] = -(Robber[i].pos[0] - act_pos[0]);
 					new_f[1] = -(Robber[i].pos[1] - act_pos[1]);
 					new_f[2] = Robber[i].pos[2] - act_pos[2];
@@ -928,9 +930,9 @@ void Robber_play(float act_pos[],int skip)
 					Robber[i].actor.SetDirection(new_f, new_d);
 					Robber[i].SetPosition(30);
 				}
-				else if (dis[0] > Robber[i].diswithL  && Robber[i].diswithL > dis[1])
+				else if (dis[0] > Robber[i].GetDisWithL() && Robber[i].GetDisWithL() > dis[1])
 				{
-					for (int j = 0; j < num && run_flag == 1 && Robber[i].stop_flag == 0; j++)
+					for (int j = 0; j < num && run_flag == 1 && Robber[i].GetStopFlag() == 0; j++)
 					{
 						if (j == i || (Robber[j].HP < 1)) continue;
 
@@ -938,7 +940,7 @@ void Robber_play(float act_pos[],int skip)
 
 						if (dis_i_j <= 30) // too close, stop
 						{
-							if (Robber[j].dis(act_pos) < Robber[i].diswithL)
+							if (Robber[j].dis(act_pos) < Robber[i].GetDisWithL())
 							{
 
 								new_f[0] = (Robber[i].pos[0] - act_pos[0]);
@@ -948,12 +950,12 @@ void Robber_play(float act_pos[],int skip)
 								{
 									if (new_f[0] * new_f[1] > 0) new_f[1] = new_f[1] * 100;
 									else					   new_f[1] = new_f[1] * -100;
-									new_f[1] = new_f[1] * Robber[i].find_way;
+									new_f[1] = new_f[1] * Robber[i].GetFindWay();
 								}
 								else  {
 									if (new_f[0] * new_f[1] > 0) new_f[0] = new_f[0] * 100;
 									else					   new_f[0] = new_f[0] * -100;
-									new_f[0] = new_f[0] * Robber[i].find_way;
+									new_f[0] = new_f[0] * Robber[i].GetFindWay();
 								}// control the dir... always right/left setted by Robber[i].find_way;
 
 								Robber[i].actor.SetDirection(new_f, new_d);
@@ -963,15 +965,15 @@ void Robber_play(float act_pos[],int skip)
 								else
 									Robber[i].SetPosition(-5);
 
-								Robber[i].stop_flag = rand() % 5 + 1;
+								Robber[i].SetStopFlag(rand() % 5 + 1);
 								run_flag = 0; //identify a robber j a time
-								Robber[i].leave_with_L = 0;
+								Robber[i].SetLeaveWithL(0);
 							}
 						}
 
 					}//for (int j = 0; j < num; j++ ...
 
-					if (Robber[i].stop_flag == 0 || dis[1] > Robber[i].dis(act_pos)) // Robber[i].stop_flag>0 : someone between Robber[i] and lyubu
+					if (Robber[i].GetStopFlag() == 0 || dis[1] > Robber[i].dis(act_pos)) // Robber[i].stop_flag>0 : someone between Robber[i] and lyubu
 					{
 
 						new_f[0] = -(Robber[i].pos[0] - act_pos[0]);
@@ -980,18 +982,18 @@ void Robber_play(float act_pos[],int skip)
 
 						Robber[i].actor.SetDirection(new_f, new_d);
 					}
-					if (run_flag == 1 && Robber[i].diswithL > dis[1])
-						Robber[i].leave_with_L = 1;
+					if (run_flag == 1 && Robber[i].GetDisWithL() > dis[1])
+						Robber[i].SetLeaveWithL(1);
 
-					Robber[i].SetPosition(run_flag*(rand() % 10) / (Robber[i].stop_flag + 1));//real speed=run_flag*0~10*1.0
+					Robber[i].SetPosition(run_flag*(rand() % 10) / (Robber[i].GetStopFlag() + 1));//real speed=run_flag*0~10*1.0
 
 				}//else if (500>Robber[i].dis(act_pos) && Robber[i].di....
 
-				else if (dis[1] >= Robber[i].diswithL  && Robber[i].diswithL > dis[2])
+				else if (dis[1] >= Robber[i].GetDisWithL()  && Robber[i].GetDisWithL() > dis[2])
 				{
-					Robber[i].leave_with_L = 0;
-					if (Robber[i].stop_flag != 0)
-						Robber[i].stop_flag = rand() % 10;
+					Robber[i].SetLeaveWithL(0);
+					if (Robber[i].GetStopFlag() != 0)
+						Robber[i].SetStopFlag (rand() % 10);
 
 					new_f[0] = -(Robber[i].pos[0] - act_pos[0]);
 					new_f[1] = -(Robber[i].pos[1] - act_pos[1]);
@@ -1003,7 +1005,7 @@ void Robber_play(float act_pos[],int skip)
 
 			}// for run Robber[i].leave_with_L >= 0;
 
-			if (dis[2] > Robber[i].diswithL) // too close
+			if (dis[2] > Robber[i].GetDisWithL()) // too close
 			{
 				//Robber[i].leave_with_L = 0;
 				new_f[0] = -(Robber[i].pos[0] - act_pos[0]);
@@ -1017,8 +1019,8 @@ void Robber_play(float act_pos[],int skip)
 
 
 			// attack
-			if ((frame_clock % 2 == 0 && !Robber[i].action_lock) || Robber[i].leave_with_L < 0)
-			if ((dis[1] >= Robber[i].diswithL && rand() % 10 < 1) || Robber[i].leave_with_L < 0)
+			if ((frame_clock % 2 == 0 && !Robber[i].action_lock) || Robber[i].GetLeaveWithL() < 0)
+			if ((dis[1] >= Robber[i].GetDisWithL() && rand() % 10 < 1) || Robber[i].GetLeaveWithL() < 0)
 			{
 
 				Robber[i].attackplayer(rand() % 3);
