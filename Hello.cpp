@@ -29,6 +29,9 @@ ROBBER Robber[128];
 int attack_on_delay = 0;//for attack delay
 bool action_lock = 0;//
 
+//for effect
+GAMEFX_SYSTEMid gFXID = FAILED_ID;
+OBJECTid dummyID = FAILED_ID; // object for display FX
 
 
 ROOMid terrainRoomID = FAILED_ID;
@@ -191,6 +194,8 @@ void FyMain(int argc, char **argv)
 	FySetModelPath("Data\\NTU6\\Scenes");
 	FySetTexturePath("Data\\NTU6\\Scenes\\Textures");
 	FySetScenePath("Data\\NTU6\\Scenes");
+	FySetGameFXPath("Data\\NTU6\\FX");
+
 
 	// create a viewport
 	vID = FyCreateViewport(0, 0, 1024, 768);
@@ -525,7 +530,17 @@ void GameAI(int skip)
 	else{
 	result[0] = 0;
 	}*/
+	// play game FX
 
+	if (gFXID != FAILED_ID) {
+		FnGameFXSystem gxS(gFXID);
+		BOOL4 beOK = gxS.Play((float)skip, ONCE);
+		if (!beOK) {
+			FnScene scene(sID);
+			scene.DeleteGameFXSystem(gFXID);
+			gFXID = FAILED_ID;
+		}
+	}
 }
 
 
@@ -632,6 +647,7 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 		if (code == FY_A)
 		{   
 			
+
 			Lyubu.curPoseID = Lyubu.normal_attack2ID;
 			actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);
 			actor.Play(START, 0.0f, FALSE, TRUE);

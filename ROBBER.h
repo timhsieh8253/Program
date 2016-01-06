@@ -11,7 +11,6 @@ public:
 	void isattack(int); //be attacked
 	void attackplayer(int);
 	void play(int, int);
-
 	//**
 	int GetState();
 	void SetState(int);
@@ -63,6 +62,7 @@ public:
 	float diswithL;
 	bool action_lock;
 
-
+	GAMEFX_SYSTEMid gFXID = FAILED_ID;
+	OBJECTid dummyID = FAILED_ID; // object for display FX
 };
 
