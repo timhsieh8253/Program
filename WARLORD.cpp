@@ -46,7 +46,7 @@ void WARLORD::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK){
 
 	idleID = actor.GetBodyAction(NULL, "Idle");
 	runID = actor.GetBodyAction(NULL, "Run");
-	swingID = actor.GetBodyAction(NULL,"2H_swing_mid_left");
+	swingID = actor.GetBodyAction(NULL,"2H_sword_swing_high_straight_down");
 	dying_AID = actor.GetBodyAction(NULL, "Dying_A");
 	curPoseID = idleID;
 	actor.SetCurrentAction(NULL, 0, curPoseID);
@@ -87,7 +87,10 @@ void WARLORD::play(int attack_on_delay, int skip, bool action_lock){
 	actor.Play(LOOP, (float)skip, FALSE, TRUE);
 	}
 	else*/
-	actor.Play(LOOP, (float)skip, FALSE, TRUE);
+	if (curPoseID != dying_AID)
+		actor.Play(LOOP, (float)skip, FALSE, TRUE);
+	else
+		actor.Play(ONCE, (float)skip, FALSE, TRUE);
 }
 float* WARLORD::GetPosition()
 {
