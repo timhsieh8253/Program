@@ -33,7 +33,9 @@ void LYUBU::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK)
 	float fDir[3], uDir[3];
 	FnCharacter actor;
 	actor.ID(id);
-	pos[0] = 3569.0f; pos[1] = -3208.0f; pos[2] = 1000.0f;
+	//pos[0] = 3569.0f; pos[1] = -3208.0f; pos[2] = 1000.0f;
+	//pos[0] = 4013.461f; pos[1] = -3938.850f; pos[2] = 1000.0f;
+	pos[0] = 3691.727f; pos[1] = -4225.118f; pos[2] = 1000.0f;
 	fDir[0] = 1.0f; fDir[1] = 1.0f; fDir[2] = 0.0f;
 	uDir[0] = 0.0f; uDir[1] = 0.0f; uDir[2] = 1.0f;
 	actor.SetDirection(fDir, uDir);

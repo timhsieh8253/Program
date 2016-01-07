@@ -29,7 +29,7 @@ void FOOTMAN::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK){
 	float fDir[3], uDir[3];
 	FnCharacter actor;
 	actor.ID(id);
-	pos[0] = 3390.0f; pos[1] = -3208.0f; pos[2] = 1000.0f;
+	pos[0] = 3806.497f; pos[1] = -3406.355f; pos[2] = 1000.0f;
 	fDir[0] = -1.0f; fDir[1] = -1.0f; fDir[2] = 0.0f;
 	uDir[0] = 0.0f; uDir[1] = 0.0f; uDir[2] = 1.0f;
 	actor.SetDirection(fDir, uDir);
