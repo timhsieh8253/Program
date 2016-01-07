@@ -17,6 +17,8 @@ Last Updated : 1004, 2015, Kevin C. Wang
 #include "LYUBU.h"
 #include "DONZO.h"
 #include "ROBBER.h"
+#include "FOOTMAN.h"
+#include "dialog.h"
 
 float result[3];
 VIEWPORTid vID;                 // the major viewport
@@ -25,6 +27,7 @@ OBJECTid cID, tID;              // the main camera and the terrain for terrain f
 LYUBU Lyubu;
 DONZO Donzo;
 ROBBER Robber[128];
+FOOTMAN footman;
 
 int attack_on_delay = 0;//for attack delay
 bool action_lock = 0;//
@@ -71,6 +74,227 @@ int next_wave = 30;
 int frame_clock = 300; // a clock for 300 frames
 void call_Robber(float[],int);
 void Robber_play(float[],int);
+
+//dialog
+int event_num = 0;
+int movie_lock = 0;
+int frame_cal = 0;
+dialog dia;
+void dialong_init();
+void Space_func(BYTE, BOOL4);
+void do_event(int skip);
+void movie0();
+void movie1(int skip);
+void movie2(int skip);
+int movie3(int skip);
+int movie3(int skip){
+	FnCamera camera;
+	FnCharacter actor;
+	float pos[3], fdir[3], udir[3];
+
+	actor.ID(Lyubu.id);
+	actor.GetPosition(pos);
+	if (frame_cal == 1){
+		Lyubu.curPoseID = Lyubu.runID;
+		actor.SetCurrentAction(NULL, 0, Lyubu.curPoseID);
+		actor.Play(START, 0.0f, FALSE, TRUE);
+	}
+	if (pos[0] > 3806.497 && pos[1] > -3456.355){
+		fdir[0] = 1; fdir[1] = 1; fdir[2] = 0;
+		udir[0] = 0; udir[1] = 0; udir[2] = 1;
+		actor.SetDirection(fdir, udir);
+		Lyubu.curPoseID = Lyubu.idleID;
+		actor.SetCurrentAction(NULL, 0, Lyubu.curPoseID);
+		actor.Play(START, 0.0f, FALSE, TRUE);
+		return 1;
+	}
+	else
+		actor.MoveForward(3.0f, TRUE, FALSE, 0.0f, TRUE);
+	actor.Play(LOOP, (float)skip, FALSE, TRUE);
+
+	camera.ID(cID);
+	camera.GetPosition(pos);
+	camera.GetDirection(fdir,udir);
+	if (pos[0] <= 3095.083 && pos[1] <= -3798.389){
+		pos[0] += (3095.083 - 2958.218) / 30;	pos[1] += (-3798.389 + 3934.650) / 30;
+		fdir[0] -= (0.962 - 0.874) / 30; fdir[1] += (0.420 - 0.127) / 30; fdir[2] += (-0.245 + 0.242)/30;
+		udir[0] +=-0.02/30 ; udir[1] += 0.074/30; udir[2] += 0;
+		 
+	}
+	else{
+		pos[0] = 3095.083; pos[1] = -3798.389; pos[2] = 200;
+		fdir[0] = 0.874; fdir[1] = 0.420; fdir[2] = -0.245;
+		udir[0] = 0.220; udir[1] = 0.106; udir[2] = 0.970;
+	}
+
+	camera.SetPosition(pos);
+	camera.SetDirection(fdir, udir);
+	return 0;
+}
+void movie2(int skip){
+	FnCharacter actor;
+	FnViewport vp;
+	float pos[4],p2D[2];
+	actor.ID(Lyubu.id);
+	actor.GetPosition(pos);
+	
+	vp.ID(vID);
+	vp.ComputeScreenPosition(cID, p2D, pos, PHYSICAL_SCREEN, FALSE);
+	dia.special_render(p2D);
+	vp.Render3D(cID, TRUE, TRUE);
+	vp.RenderSprites(dia.Lyubuid, FALSE, TRUE);
+	
+}
+void movie0(){
+	//initial camera and actor pos
+	FnCamera camera;
+	FnCharacter actor;
+	float pos[3] = { 2958.218, -3934.650, 200 };
+	float fdir[3] = { 0.962, 0.127, -0.242 };
+	float udir[3] = { 0.240, 0.032, 0.970 };
+
+	float a_pos[3] = { 3691.727, -4225.118, 0.897 };
+	float a_fdir[3] = { 57.385, 384.3824, 0 };
+	float a_udir[3] = { 0,0,1 };
+
+	camera.ID(cID);
+	actor.ID(Lyubu.id);
+	camera.SetPosition(pos);
+	camera.SetDirection(fdir, udir);
+	actor.SetPosition(a_pos);
+	actor.SetDirection(a_fdir, a_udir);
+	Lyubu.curPoseID = Lyubu.runID;
+	actor.SetCurrentAction(NULL, 0, Lyubu.curPoseID);
+	actor.Play(START, 0.0f, FALSE, TRUE);
+}
+void movie1(int skip){
+	FnCharacter actor;
+	float pos[3] ,fdir[3] ,udir[3];
+	actor.ID(Lyubu.id);
+	actor.GetPosition(pos);
+	if (pos[0] > 3749.112 && pos[1] > -3840.7356){
+		Lyubu.curPoseID = Lyubu.idleID;
+		actor.SetCurrentAction(NULL, 0, Lyubu.curPoseID);
+		actor.Play(START, 0.0f, FALSE, TRUE);
+	}
+	else
+		actor.MoveForward(3.0f, TRUE, FALSE, 0.0f, TRUE);
+	actor.Play(LOOP, (float)skip, FALSE, TRUE);
+}
+
+//for special event
+void do_event(int skip){
+	FnCharacter actor;
+	FnCharacter foot;
+	actor.ID(Lyubu.id);
+	foot.ID(footman.id);
+	if(event_num == 1 && dia.content_now == 1){
+		movie0();	
+	}
+	else if (event_num == 1 && dia.content_now == 2){
+		frame_cal++;
+		movie_lock = 1;
+		movie1(skip);
+		if (frame_cal > 70)
+			dia.next_content();
+	}
+	else if (event_num == 1 && dia.content_now == 3){
+		movie1(skip);
+		movie_lock = 0;
+		frame_cal = 0;
+	}
+	else if (event_num == 1 && dia.content_now == 4){
+		//!!
+		frame_cal++;
+		movie1(skip);
+		movie2(skip);
+		if (frame_cal > 60){
+			frame_cal = 0;
+			dia.next_content();
+		}
+	}
+	else if (event_num == 1 && dia.content_now == 5){
+		//move camera and actor ,cancel render!!
+		frame_cal++;
+		if (movie3(skip)){
+			dia.next_content();
+			frame_cal = 0;
+		}
+	}
+	else if (event_num == 1 && dia.content_now == 11){
+		if (FyCheckHotKeyStatus(FY_S) && frame_cal == 0){
+			Lyubu.curPoseID = Lyubu.heavy_attack2ID;
+			actor.SetCurrentAction(NULL, 0, Lyubu.curPoseID);
+			actor.Play(START, 0.0f, FALSE, TRUE);
+			frame_cal++;
+		}
+		else if (frame_cal == 58){
+			Lyubu.curPoseID = Lyubu.idleID;
+			actor.SetCurrentAction(NULL, 0, Lyubu.curPoseID);
+			actor.Play(START, 0.0f, FALSE, TRUE);
+			dia.next_content();
+			frame_cal = 0;
+
+			footman.curPoseID = footman.dying_AID;
+			foot.SetCurrentAction(NULL, 0, footman.curPoseID);
+			actor.Play(START, 0.0f, FALSE, TRUE);
+		}
+		else if(frame_cal > 0){
+			actor.Play(LOOP, (float)skip, FALSE, TRUE);
+			frame_cal++;
+		}
+	}
+	else if (event_num == 1 && dia.content_now == 12){
+		frame_cal++;
+		foot.Play(ONCE, (float)skip, FALSE, TRUE);
+		if (frame_cal == 65){
+			frame_cal = 0;
+			movie_lock = 0;
+		}
+	}
+	else
+		movie_lock = 0;
+}
+
+//dialog_init
+void dialog_init(){
+	//dialog init
+	FnScene scene;
+	// add a 2D scene for sprites
+	dia.dialogid = FyCreateScene();
+	scene.ID(dia.dialogid);
+	scene.SetSpriteWorldSize(1024, 768);   // same size as the viewport
+
+	// create a sprite as the text background
+	dia.dialog_backGID = scene.CreateObject(SPRITE);
+	// create the sprite text object to display the caption
+	dia.contentID = scene.CreateObject(SPRITE);
+
+
+	//dialog pic init
+	dia.picid = FyCreateScene();
+	scene.ID(dia.picid);
+	scene.SetSpriteWorldSize(1024, 768);
+	dia.pic_backGID = scene.CreateObject(SPRITE);
+
+	//full init
+	dia.fullid = FyCreateScene();
+	scene.ID(dia.fullid);
+	dia.fullcontentID = scene.CreateObject(SPRITE);
+	scene.SetSpriteWorldSize(1024, 768);
+	dia.full_backGID = scene.CreateObject(SPRITE);
+
+	//Lyubu init
+	dia.Lyubuid = FyCreateScene();
+	scene.ID(dia.Lyubuid);
+	scene.SetSpriteWorldSize(1024, 768);
+	dia.Lyubu_backGID = scene.CreateObject(SPRITE);
+	dia.LyubucontentID = scene.CreateObject(SPRITE);
+	
+	
+}
+
+
 
 float vector_norm(float* A){
 
@@ -233,7 +457,7 @@ void FyMain(int argc, char **argv)
 	Lyubu.Initiate(sID, terrainRoomID, beOK);
 	float init_pos[3] = { 3790.0f, -3158.0f, 1000.0f };
 	Donzo.Initiate(sID, terrainRoomID, beOK,init_pos);
-
+	footman.Initiate(sID, terrainRoomID, beOK);
 
 
 	// translate the camera
@@ -273,7 +497,13 @@ void FyMain(int argc, char **argv)
 
 	// create a text object for displaying messages on screen
 	textID = FyCreateText("Trebuchet MS", 18, FALSE, FALSE);
-
+	
+	//dialog part
+	dialog_init();
+	event_num = 1;
+	dia.start_dialog(event_num);
+	FyDefineHotKey(FY_SPACE, Space_func, FALSE);  // escape for quiting the game
+	
 	// set Hotkeys
 	FyDefineHotKey(FY_ESCAPE, QuitGame, FALSE);  // escape for quiting the game
 	FyDefineHotKey(FY_UP, Movement, FALSE);      // Up for moving forward
@@ -307,6 +537,12 @@ void FyMain(int argc, char **argv)
 --------------------------------------------------------------*/
 void GameAI(int skip)
 {
+	if (event_num){
+		do_event(skip);
+		return;
+	}
+	else
+		FySetTexturePath("Data\\NTU6\\Characters");	
 	//Lai
 	if (frame_clock < 1) frame_clock = 300;
 	else frame_clock--;
@@ -557,7 +793,7 @@ void RenderIt(int skip)
 	// render the whole scene
 	vp.ID(vID);
 	vp.Render3D(cID, TRUE, TRUE);
-
+	dia.render_dialog(vp,0);
 	// get camera's data
 	FnCamera camera;
 	camera.ID(cID);
@@ -613,7 +849,15 @@ void RenderIt(int skip)
 	// swap buffer
 	FySwapBuffers();
 }
+void Space_func(BYTE code, BOOL4 value){
+	if (value && event_num && !movie_lock){
+		if (!dia.next_content())
+			event_num = 0;
+		else
+			movie_lock = 1;
+	}
 
+}
 
 /*------------------
 Keyboard control by Tim

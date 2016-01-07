@@ -18,8 +18,8 @@ void FOOTMAN::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK){
 	bloodBarObj = scene.CreateObject(MODEL);     // blood bar object id
 	FnObject model(bloodBarObj);
 	float size[2], color[3];
-	size[0] = 20.0f;
-	size[1] = 2.0f;
+	size[0] = 0.0f;
+	size[1] = 0.0f;
 	color[0] = 1.0f;
 	color[1] = 0.0f;
 	color[2] = 0.0f;
