@@ -19,6 +19,8 @@ Last Updated : 1004, 2015, Kevin C. Wang
 #include "ROBBER.h"
 #include "FOOTMAN.h"
 #include "dialog.h"
+#include "FyMedia.h"
+
 
 float result[3];
 VIEWPORTid vID;                 // the major viewport
@@ -75,10 +77,14 @@ int frame_clock = 300; // a clock for 300 frames
 void call_Robber(float[],int);
 void Robber_play(float[],int);
 
+
 //dialog
+MEDIAid mmID;
+
 int event_num = 0;
 int movie_lock = 0;
 int frame_cal = 0;
+int play_media = 0;
 dialog dia;
 void dialong_init();
 void Space_func(BYTE, BOOL4);
@@ -188,6 +194,9 @@ void do_event(int skip){
 	FnCharacter foot;
 	actor.ID(Lyubu.id);
 	foot.ID(footman.id);
+
+	FyBeginMedia("Data\\NTU6\\Media", 2);
+
 	if(event_num == 1 && dia.content_now == 1){
 		movie0();	
 	}
@@ -251,6 +260,16 @@ void do_event(int skip){
 			frame_cal = 0;
 			movie_lock = 0;
 		}
+	}
+	else if (event_num == 1 && dia.content_now == 16){
+		if (!play_media){
+			mmID = FyCreateMediaPlayer("pokemonGET.mp3", 0, 0, 800, 600);
+			FnMedia mP;
+			mP.Object(mmID);
+			mP.Play(ONCE);
+			play_media++;
+		}
+		movie_lock = 0;
 	}
 	else
 		movie_lock = 0;
@@ -853,8 +872,10 @@ void Space_func(BYTE code, BOOL4 value){
 	if (value && event_num && !movie_lock){
 		if (!dia.next_content())
 			event_num = 0;
-		else
+		else{
 			movie_lock = 1;
+			play_media = 0;
+		}
 	}
 
 }
