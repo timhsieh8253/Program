@@ -16,6 +16,7 @@ public:
 	void end_content();
 	void set_pic(int num,FnSprite &sp2);
 	void special_render(float* pos);
+	void special_render2(float* pos);
 	
 	int content_now,content_end;
 	int event_num;

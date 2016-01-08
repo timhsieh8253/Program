@@ -27,7 +27,7 @@ VIEWPORTid vID;                 // the major viewport
 SCENEid sID;                    // the 3D scene
 OBJECTid cID, tID;              // the main camera and the terrain for terrain following
 LYUBU Lyubu;
-DONZO Donzo;
+DONZO Donzo[100];
 ROBBER Robber[128];
 FOOTMAN footman;
 
@@ -42,10 +42,16 @@ OBJECTid dummyID = FAILED_ID; // object for display FX
 ROOMid terrainRoomID = FAILED_ID;
 TEXTid textID = FAILED_ID;
 
+// robber appear variable
+int robber_appear_lock = 3; // total three waves of robber 
+float robber_pos[3][2] = { { 3572, -3145 }, { 3427, -2703 }, { 2704, -2600 } };
+
+
 // some globals
 int frame = 0;
 int oldX, oldY, oldXM, oldYM, oldXMM, oldYMM;
 int cur_angle = 0;
+int camera_height = 200;
 // hotkey callbacks
 void QuitGame(BYTE, BOOL4);
 void Movement(BYTE, BOOL4);
@@ -76,15 +82,22 @@ int next_wave = 30;
 int frame_clock = 300; // a clock for 300 frames
 void call_Robber(float[],int);
 void Robber_play(float[],int);
+void Donzo_play(float[], int);
 
+int count_donzo = 0;
+void call_Donzo(float[], int);
+void Robber_Donzo(float[], int);
 
 //dialog
-MEDIAid mmID;
+MEDIAid mmID, mmID2;
+MEDIAid mmID_background;
+FnMedia mP0;
 
 int event_num = 0;
 int movie_lock = 0;
 int frame_cal = 0;
 int play_media = 0;
+int shake_index = 0;
 dialog dia;
 void dialong_init();
 void Space_func(BYTE, BOOL4);
@@ -93,6 +106,18 @@ void movie0();
 void movie1(int skip);
 void movie2(int skip);
 int movie3(int skip);
+void movie4();
+
+void movie4(){
+	FnCamera camera;
+	float pos[3];
+	int scale[6] = { -3, 3, -5, 5, -3, 3 };
+	camera.ID(cID);
+	camera.GetPosition(pos);
+	pos[0] += scale[shake_index]; pos[1] += scale[shake_index];
+	shake_index = (shake_index + 1) % 6;
+	camera.SetPosition(pos);
+}
 int movie3(int skip){
 	FnCamera camera;
 	FnCharacter actor;
@@ -197,8 +222,8 @@ void do_event(int skip){
 
 	FyBeginMedia("Data\\NTU6\\Media", 2);
 
-	if(event_num == 1 && dia.content_now == 1){
-		movie0();	
+	if (event_num == 1 && dia.content_now == 1){
+		movie0();
 	}
 	else if (event_num == 1 && dia.content_now == 2){
 		frame_cal++;
@@ -214,6 +239,16 @@ void do_event(int skip){
 	}
 	else if (event_num == 1 && dia.content_now == 4){
 		//!!
+		mP0.Stop();
+		if (!play_media)
+		{
+			mmID = FyCreateMediaPlayer("!!.mp3", 0, 0, 800, 600);
+			FnMedia mP;
+			mP.Object(mmID);
+			mP.Play(ONCE);
+			play_media++;
+		}
+
 		frame_cal++;
 		movie1(skip);
 		movie2(skip);
@@ -230,6 +265,10 @@ void do_event(int skip){
 			frame_cal = 0;
 		}
 	}
+	else if (event_num == 1 && dia.content_now == 10){
+		Lyubu.SetFX();
+		movie_lock = 0;
+	}
 	else if (event_num == 1 && dia.content_now == 11){
 		if (FyCheckHotKeyStatus(FY_S) && frame_cal == 0){
 			Lyubu.curPoseID = Lyubu.heavy_attack2ID;
@@ -237,6 +276,17 @@ void do_event(int skip){
 			actor.Play(START, 0.0f, FALSE, TRUE);
 			frame_cal++;
 		}
+		else if (frame_cal == 10)
+		{
+			frame_cal++;
+			// foot damage musicFX
+			//FyEndMedia();
+			mmID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
+			FnMedia mP;
+			mP.Object(mmID);
+			mP.Play(ONCE);
+		}
+
 		else if (frame_cal == 58){
 			Lyubu.curPoseID = Lyubu.idleID;
 			actor.SetCurrentAction(NULL, 0, Lyubu.curPoseID);
@@ -247,8 +297,14 @@ void do_event(int skip){
 			footman.curPoseID = footman.dying_AID;
 			foot.SetCurrentAction(NULL, 0, footman.curPoseID);
 			actor.Play(START, 0.0f, FALSE, TRUE);
+
+			mmID = FyCreateMediaPlayer("humanVoice02.mp3", 0, 0, 800, 600);
+			FnMedia mP;
+			mP.Object(mmID);
+			mP.Play(ONCE);
+
 		}
-		else if(frame_cal > 0){
+		else if (frame_cal > 0){
 			actor.Play(LOOP, (float)skip, FALSE, TRUE);
 			frame_cal++;
 		}
@@ -270,6 +326,29 @@ void do_event(int skip){
 			play_media++;
 		}
 		movie_lock = 0;
+	}
+	else if (event_num == 3 && dia.content_now == 1){
+		frame_cal++;
+		if (frame_cal == 10){
+			dia.next_content();
+			frame_cal = 0;
+		}
+	}
+	else if (event_num == 3 && dia.content_now == 2){
+		dia.next_content();
+	}
+	else if (event_num == 3 && dia.content_now == 4){
+		frame_cal++;
+		if (frame_cal<24){
+			movie4();
+		}
+		else if (frame_cal >= 36 && frame_cal < 60){
+			movie4();
+		}
+		else if (frame_cal == 60){
+			dia.next_content();
+			frame_cal = 0;
+		}
 	}
 	else
 		movie_lock = 0;
@@ -320,6 +399,7 @@ float vector_norm(float* A){
 	return sqrt(pow(A[0], 2) + pow(A[1], 2) + pow(A[2], 2));
 
 }
+
 void cal_ud(float* new_f, float* new_d, float* act_pos, float* cam_pos){
 	float x12, y12, z12, z21;
 
@@ -475,7 +555,7 @@ void FyMain(int argc, char **argv)
 	//lo character init
 	Lyubu.Initiate(sID, terrainRoomID, beOK);
 	float init_pos[3] = { 3790.0f, -3158.0f, 1000.0f };
-	Donzo.Initiate(sID, terrainRoomID, beOK,init_pos);
+//	Donzo[0].Initiate(sID, terrainRoomID, beOK,init_pos);
 	footman.Initiate(sID, terrainRoomID, beOK);
 
 
@@ -544,6 +624,15 @@ void FyMain(int argc, char **argv)
 	FyBindTimer(0, 30.0f, GameAI, TRUE);
 	FyBindTimer(1, 30.0f, RenderIt, TRUE);
 
+	// music
+
+
+	FyBeginMedia("Data\\NTU6\\Media", 2);
+	mmID_background = FyCreateMediaPlayer("background.mp3", 0, 0, 800, 600);
+	mP0.Object(mmID_background);
+	mP0.Play(ONCE);
+
+
 	//while (character_camera_angel());
 	// invoke the system
 	FyInvokeFly(TRUE);
@@ -582,26 +671,56 @@ void GameAI(int skip)
 
 	// play character pose
 	actor.ID(Lyubu.id);
-	actor.Play(LOOP, (float)skip, FALSE, TRUE);
+	//actor.Play(LOOP, (float)skip, FALSE, TRUE);
 	actor.GetPosition(act_pos);
+	Lyubu.play( attack_on_delay, skip);
+	//if (Lyubu.HP<0) return;
 
 	//Lai
-	if (next_wave > 0)
+	if (robber_appear_lock == 3)
 	{
-		if (next_wave != 0) next_wave--;
-		if (next_wave == 0)
+		float dist = sqrt(pow((act_pos[0] - robber_pos[0][0]), 2) + pow((act_pos[1] - robber_pos[0][1]), 2));
+		if (dist < 200)
 		{
+			float call_pos[2] = { 3494, -3142 };
+			robber_appear_lock--;
 			count_robber = 0;
-			call_Robber(act_pos, 10);
+			event_num = 2;
+			dia.start_dialog(event_num);
+			FySetTexturePath("Data\\NTU6\\Characters");
+			call_Robber(call_pos, 5);
+		}
+	}
+	else if (robber_appear_lock == 2)
+	{
+		float dist = sqrt(pow((act_pos[0] - robber_pos[1][0]), 2) + pow((act_pos[1] - robber_pos[1][1]), 2));
+		if (dist < 200)
+		{
+			float call_pos[2] = { 2871, -2689 };
+			robber_appear_lock--;
+			count_robber = 0;
+			call_Robber(call_pos, 5);
+		}
+	}
+	else if (robber_appear_lock == 1)
+	{
+		float dist = sqrt(pow((act_pos[0] - robber_pos[2][0]), 2) + pow((act_pos[1] - robber_pos[2][1]), 2));
+		if (dist < 200)
+		{
+			float call_pos[2] = { 2201, -2656 };
+			robber_appear_lock--;
+			count_robber = 0;
+			call_Robber(call_pos, 5);
 		}
 	}
 	//Lai
 	Robber_play(act_pos, skip);
+	Donzo_play(act_pos, skip);
 
 
 	
 	//lo play DonZo
-	Donzo.play(attack_on_delay,skip);
+	//Donzo[0].play(attack_on_delay,skip);
 
 	float dif_pos[3] = { cam_pos[0] - act_pos[0], cam_pos[1] - act_pos[1], cam_pos[2] - act_pos[2] };
 
@@ -624,11 +743,7 @@ void GameAI(int skip)
 
 		// right forward
 		else if (FyCheckHotKeyStatus(FY_RIGHT) && FyCheckHotKeyStatus(FY_UP) && !FyCheckHotKeyStatus(FY_LEFT) && !FyCheckHotKeyStatus(FY_DOWN)){
-			//actor.GetPosition(act_pos);
-			//camera.GetPosition(cam_pos);
-			//act_pos[0] = act_pos[0] + (-dif_pos[0] - dif_pos[1]) / sqrt(2*(dif_pos[0] * dif_pos[0] + dif_pos[1] * dif_pos[1]))*5;
-			//act_pos[1] = act_pos[1] + (-dif_pos[1] + dif_pos[0]) / sqrt(2*(dif_pos[0] * dif_pos[0] + dif_pos[1] * dif_pos[1]))*5;
-			//actor.SetPosition(act_pos);
+			
 			actor.MoveForward(dis / 2, TRUE, FALSE, 0.0f, TRUE);
 			actor.GetPosition(act_pos);
 			cam_pos[0] = act_pos[0] + dif_pos[0];
@@ -638,11 +753,7 @@ void GameAI(int skip)
 		}
 		// right backward
 		else if (FyCheckHotKeyStatus(FY_RIGHT) && !FyCheckHotKeyStatus(FY_UP) && !FyCheckHotKeyStatus(FY_LEFT) && FyCheckHotKeyStatus(FY_DOWN)){
-			//actor.GetPosition(act_pos);
-			//camera.GetPosition(cam_pos);
-			//act_pos[0] = act_pos[0] + (-dif_pos[0] + dif_pos[1]) / sqrt(2 * (dif_pos[0] * dif_pos[0] + dif_pos[1] * dif_pos[1])) * 5;
-			//act_pos[1] = act_pos[1] + (dif_pos[1] + dif_pos[0]) / sqrt(2 * (dif_pos[0] * dif_pos[0] + dif_pos[1] * dif_pos[1])) * 5;
-			//actor.SetPosition(act_pos);
+			
 			actor.MoveForward(dis / 2, TRUE, FALSE, 0.0f, TRUE);
 			actor.GetPosition(act_pos);
 			cam_pos[0] = act_pos[0] + dif_pos[0];
@@ -653,12 +764,6 @@ void GameAI(int skip)
 		// left forward
 		else if (!FyCheckHotKeyStatus(FY_RIGHT) && FyCheckHotKeyStatus(FY_UP) && FyCheckHotKeyStatus(FY_LEFT) && !FyCheckHotKeyStatus(FY_DOWN)){
 
-			//actor.GetPosition(act_pos);
-			//camera.GetPosition(cam_pos);
-
-			//act_pos[0] = act_pos[0] + (dif_pos[0] - dif_pos[1]) / sqrt(2 * (dif_pos[0] * dif_pos[0] + dif_pos[1] * dif_pos[1])) * 5;
-			//act_pos[1] = act_pos[1] + (-dif_pos[1] - dif_pos[0]) / sqrt(2 * (dif_pos[0] * dif_pos[0] + dif_pos[1] * dif_pos[1])) * 5;
-			//actor.SetPosition(act_pos);
 			actor.MoveForward(dis / 2, TRUE, FALSE, 0.0f, TRUE);
 			actor.GetPosition(act_pos);
 			cam_pos[0] = act_pos[0] + dif_pos[0];
@@ -668,11 +773,7 @@ void GameAI(int skip)
 		}
 		// left backward
 		else if (!FyCheckHotKeyStatus(FY_RIGHT) && !FyCheckHotKeyStatus(FY_UP) && FyCheckHotKeyStatus(FY_LEFT) && FyCheckHotKeyStatus(FY_DOWN)){
-			//actor.GetPosition(act_pos);
-			//camera.GetPosition(cam_pos);
-			//act_pos[0] = act_pos[0] + (dif_pos[0] + dif_pos[1]) / sqrt(2 * (dif_pos[0] * dif_pos[0] + dif_pos[1] * dif_pos[1])) * 5;
-			//act_pos[1] = act_pos[1] + (dif_pos[1] - dif_pos[0]) / sqrt(2 * (dif_pos[0] * dif_pos[0] + dif_pos[1] * dif_pos[1])) * 5;
-			//actor.SetPosition(act_pos);
+			
 			actor.MoveForward(dis / 2, TRUE, FALSE, 0.0f, TRUE);
 			actor.GetPosition(act_pos);
 			cam_pos[0] = act_pos[0] + dif_pos[0];
@@ -746,7 +847,7 @@ void GameAI(int skip)
 	character_camera_angel();
 	
 
-	Donzo.isattack(0);
+	//Donzo[0].isattack(0);
 
 
 	if (attack_on_delay > 0)
@@ -768,33 +869,39 @@ void GameAI(int skip)
 			actor.SetDirection(Lyubu.GetOldFaceDir(), act_d);
 			LyuBu_turn();
 			actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);
-			actor.Play(START, 0.0f, FALSE, TRUE);
+			//actor.Play(START, 0.0f, FALSE, TRUE);
 		}
 		
 	}
-	//camera.SetDirection(new_f, cam_d);
-	/*result[0] = result[1] = result[2] = 0;
-	if (terrain.HitTest(act_pos, new_f, result, NULL, NULL, NULL, NULL)){
-	if (
-	((result[0] - act_pos[0])*(result[0] - act_pos[0]) + (result[1] - act_pos[1])*(result[1] - act_pos[1]) + (result[2] - act_pos[2])*(result[2] - act_pos[2]))  <
-	((act_pos[0] - cam_pos[0])*(act_pos[0] - cam_pos[0]) + (act_pos[1] - cam_pos[1])*(act_pos[1] - cam_pos[1]) + (act_pos[2] - cam_pos[2])*(act_pos[2] - cam_pos[2])))
-	cam_pos[2] += 1;
-	else{}
-
-	camera.SetPosition(cam_pos);
-	}
-	else{
-	result[0] = 0;
-	}*/
+	
 	// play game FX
-
-	if (gFXID != FAILED_ID) {
-		FnGameFXSystem gxS(gFXID);
+	if (Lyubu.gFXID != FAILED_ID) {
+		FnGameFXSystem gxS(Lyubu.gFXID);
+		BOOL4 beOK = gxS.Play((float)skip, ONCE);
+		if (!beOK) {
+			gxS.DropToTrashCan(beOK);
+			FnScene scene(sID);
+			scene.DeleteGameFXSystem(Lyubu.gFXID);
+			Lyubu.gFXID = FAILED_ID;
+		}
+	}
+	if (Donzo[0].gFXID != FAILED_ID) {
+		FnGameFXSystem gxS(Donzo[0].gFXID);
 		BOOL4 beOK = gxS.Play((float)skip, ONCE);
 		if (!beOK) {
 			FnScene scene(sID);
-			scene.DeleteGameFXSystem(gFXID);
-			gFXID = FAILED_ID;
+			scene.DeleteGameFXSystem(Donzo[0].gFXID);
+			Donzo[0].gFXID = FAILED_ID;
+		}
+	}
+	for (int i = 0; i < count_robber; i++)
+	if (Robber[i].gFXID != FAILED_ID) {
+		FnGameFXSystem gxS(Robber[i].gFXID);
+		BOOL4 beOK = gxS.Play((float)skip, ONCE);
+		if (!beOK) {
+			FnScene scene(sID);
+			scene.DeleteGameFXSystem(Robber[i].gFXID);
+			Robber[i].gFXID = FAILED_ID;
 		}
 	}
 }
@@ -852,9 +959,11 @@ void RenderIt(int skip)
 	sprintf(fDirS, "facing: %8.3f %8.3f %8.3f", fDir[0], fDir[1], fDir[2]);
 
 	sprintf(uDirS, "up: %8.3f %8.3f %8.3f", uDir[0], uDir[1], uDir[2]);
-
+	FnCharacter actor;
+	actor.ID(Lyubu.id);
+	actor.GetPosition(pos);
 	sprintf
-		(resulttttt, " %8.3f %8.3f %8.3f %d %d %d %d %d %d", result[0], result[1], result[2], cur_angle, Donzo.HP, Robber[0].HP, live, next_wave, Robber[0].GetCleanClock());
+		(resulttttt, " %8.3f %8.3f %8.3f %d %d %d %d %d %d", pos[0], pos[1], pos[2], cur_angle, Lyubu.HP, Robber[0].HP, live, next_wave, Robber[0].GetCleanClock());
 
 	text.Write(posS, 20, 35, 255, 255, 0);
 	text.Write(fDirS, 20, 50, 255, 255, 0);
@@ -885,6 +994,9 @@ Keyboard control by Tim
 ------------------*/
 void Keyboardfunc(BYTE code, BOOL4 value)
 {
+	if (event_num || Lyubu.HP <= 0){
+		return;
+	}
 	FnCharacter actor, act_Robber, act_DonZo;
 	float act_pos[3], act_d[3], act_f[3];
 	float Robber_pos[3], Robber_f[3], Robber_d[3];
@@ -895,52 +1007,86 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 
 	actor.GetPosition(act_pos);
 	actor.GetDirection(act_f, act_d);
-	//Tim get Robber Position
-
-	act_Robber.GetPosition(Robber_pos);
-	act_Robber.GetDirection(Robber_f, Robber_d);
-	//Tim count the distance between Robber and actor
-	float rob_act_distance = sqrt(pow(Robber_pos[0] - act_pos[0], 2) + pow(Robber_pos[1] - act_pos[1], 2));
-		
-	act_DonZo.ID(Donzo.id);
-	act_DonZo.GetPosition(DonZo_pos);
-	act_DonZo.GetDirection(DonZo_f, DonZo_d);
-	float DonZo_act_distance = sqrt(pow(DonZo_pos[0] - act_pos[0], 2) + pow(DonZo_pos[1] - act_pos[1], 2));
-
+	
 	if (value && attack_on_delay == 0)
 	{  
 		Lyubu.is_attack = 1;
 		if (code == FY_A)
 		{   
-			
+			// FX 
+			//FySetGameFXPath("Data\\NTU6\\FX");
+			/*
+			FnScene scene(sID);
 
-			Lyubu.curPoseID = Lyubu.normal_attack2ID;
+			// remove the old one if necessary
+			if (Lyubu.gFXID != NULL) {
+				scene.DeleteGameFXSystem(Lyubu.gFXID);
+			}
+
+			// create a new game FX system
+			Lyubu.gFXID = scene.CreateGameFXSystem();
+
+			// case 1 : we create/move a dummy object on the hit position
+			FnGameFXSystem gxS(Lyubu.gFXID);
+
+			if (dummyID == FAILED_ID) {
+				dummyID = scene.CreateObject(MODEL);
+			}
+
+			FnObject dummy(dummyID);
+			float FX_pos[3] = { act_pos[0], act_pos[1], act_pos[2] };
+			dummy.SetPosition(FX_pos);
+
+			// play the FX on it
+			BOOL4 beOK = gxS.Load("Lyubu_atk01", TRUE);
+			if (beOK) {
+				gxS.SetParentObjectForAll(dummyID);
+			}*/
+
+			Lyubu.curPoseID = Lyubu.normal_attack1ID;
 			actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);
-			actor.Play(START, 0.0f, FALSE, TRUE);
+			//actor.Play(START, 0.0f, FALSE, TRUE);
 			Lyubu.GetOldFaceDir()[0] = act_f[0];
 			Lyubu.GetOldFaceDir()[1] = act_f[1];
 			Lyubu.GetOldFaceDir()[2] = act_f[2];
 			//Lai			
-			attack_on_delay = 24;
-
-			if (DonZo_act_distance < 100 && Donzo.HP >0)
+			attack_on_delay = 26;
+			int tar; //find target
+			bool tar_flag = FALSE;
+			for (int i = 0; i < count_donzo; i++)//find donzo
 			{
-				//Tim vector between actor and Robber
-				float DonZo_new_f[3] = { act_pos[0] - DonZo_pos[0], act_pos[1] - DonZo_pos[1], act_pos[2] - DonZo_pos[2] };
-				float act_new_f[3] = { -act_pos[0] + DonZo_pos[0], -act_pos[1] + DonZo_pos[1], -act_pos[2] + DonZo_pos[2] };
+				if (Donzo[i].GetDisWithL() <= 130 && Donzo[i].HP > 0)
+				{
+					tar = i;  tar_flag = TRUE;
+				}
+			}
+			if (tar_flag) // if anyone can be attacked
+			{
+				for (int i = 0; i < count_donzo; i++)
+				{
+					if (Donzo[i].GetDisWithL()>130 || Donzo[i].HP == 0) continue;
+					if (Donzo[i].HP < Donzo[tar].HP) tar = i;
+				}
+							//Tim vector between actor and Robber
+				float DonZo_new_f[3] = { act_pos[0] - Donzo[tar].pos[0], act_pos[1] - Donzo[tar].pos[1], act_pos[2] - Donzo[tar].pos[2] };
+				float act_new_f[3] = { -act_pos[0] + Donzo[tar].pos[0], -act_pos[1] + Donzo[tar].pos[1], -act_pos[2] + Donzo[tar].pos[2] };
 				
-					Donzo.curPoseID = Donzo.light_damagedID;
-
-					act_DonZo.SetDirection(DonZo_new_f, DonZo_d);
+				Donzo[tar].curPoseID = Donzo[tar].light_damagedID;
+				Donzo[tar].attacked_target = TRUE;//Lai 0105
+					//act_DonZo.SetDirection(DonZo_new_f, DonZo_d);
 					actor.SetDirection(act_new_f, act_d);
-	
 
 			}
+			
+
+	
+
+			
 			else //if (rob_act_distance < 100 && Robber[0].HP >0) //Lai
 			{
 				//select the less HP one
-				int tar;
-				bool tar_flag = FALSE;
+				
+				
 				for (int i = 0; i < count_robber && !tar_flag; i++)
 				{
 					if (Robber[i].GetDisWithL() <= 130 && Robber[i].HP > 0) 
@@ -961,7 +1107,7 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 					float act_new_f[3] = { -act_pos[0] + Robber[tar].pos[0], -act_pos[1] + Robber[tar].pos[1], -act_pos[2] + Robber[tar].pos[2] };
 					Robber[tar].curPoseID = Robber[tar].damaged1ID;
 					Robber[tar].attacked_target = TRUE;//Lai 0105
-					act_Robber.SetDirection(rob_new_f, Robber_d);
+					//act_Robber.SetDirection(rob_new_f, Robber_d);
 					actor.SetDirection(act_new_f, act_d);
 
 				}
@@ -969,9 +1115,40 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 		}
 		else if (code == FY_S)
 		{
+			// FX 
+			//FySetGameFXPath("Data\\NTU6\\FX");
+			/*
+			FnScene scene(sID);
+
+			// remove the old one if necessary
+			if (Lyubu.gFXID != NULL) {
+				scene.DeleteGameFXSystem(Lyubu.gFXID);
+			}
+
+			// create a new game FX system
+			Lyubu.gFXID = scene.CreateGameFXSystem();
+
+			// case 1 : we create/move a dummy object on the hit position
+			FnGameFXSystem gxS(Lyubu.gFXID);
+
+			if (dummyID == FAILED_ID) {
+				dummyID = scene.CreateObject(MODEL);
+			}
+
+			FnObject dummy(dummyID);
+			float FX_pos[3] = { act_pos[0], act_pos[1], act_pos[2] };
+			dummy.SetPosition(FX_pos);
+
+			// play the FX on it
+			BOOL4 beOK = gxS.Load("11", TRUE);
+			if (beOK) {
+				gxS.SetParentObjectForAll(dummyID);
+			}
+			*/
+			
 			Lyubu.curPoseID = Lyubu.heavy_attack2ID;
 			actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);
-			actor.Play(START, 0.0f, FALSE, TRUE);
+			//actor.Play(START, 0.0f, FALSE, TRUE);
 			Lyubu.GetOldFaceDir()[0] = act_f[0];
 			Lyubu.GetOldFaceDir()[1] = act_f[1];
 			Lyubu.GetOldFaceDir()[2] = act_f[2];
@@ -979,23 +1156,15 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 			//Lai
 			if (attack_on_delay == 0)
 				attack_on_delay = 58;
+			int tar = 0;
 
-			if (DonZo_act_distance < 100 && Donzo.HP >0)
-			{
-				//Tim vector between actor and Robber
-				float DonZo_new_f[3] = { act_pos[0] - DonZo_pos[0], act_pos[1] - DonZo_pos[1], act_pos[2] - DonZo_pos[2] };
-				float act_new_f[3] = { -act_pos[0] + DonZo_pos[0], -act_pos[1] + DonZo_pos[1], -act_pos[2] + DonZo_pos[2] };
-				Donzo.curPoseID = Donzo.heavy_damagedID;
-
-	
-				act_DonZo.SetDirection(DonZo_new_f, DonZo_d);
-				actor.SetDirection(act_new_f, act_d);
-
-
-			}
-			else //if(rob_act_distance < 120 && Robber[0].HP >0)
-			{
-				int tar = 0;
+			for (int i = 0; i < count_donzo; i++) // find donzo
+				{
+				if (Donzo[i].GetDisWithL()>200 || Donzo[i].HP == 0) continue;	
+				if (Donzo[i].HP < Donzo[tar].HP) tar = i;
+				Donzo[i].attacked_target = TRUE;//Lai 0105
+				Donzo[i].curPoseID = Donzo[i].heavy_damagedID;
+				}				
 				for (int i = 0; i < count_robber; i++)
 				{
 					if (Robber[i].GetDisWithL()>200 || Robber[i].HP==0) continue;
@@ -1010,15 +1179,21 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 					float rob_new_f[3] = { act_pos[0] - Robber[tar].pos[0], act_pos[1] - Robber[tar].pos[1], act_pos[2] - Robber[tar].pos[2] };
 					float act_new_f[3] = { -act_pos[0] + Robber[tar].pos[0], -act_pos[1] + Robber[tar].pos[1], -act_pos[2] + Robber[tar].pos[2] };
 
-					act_Robber.SetDirection(rob_new_f, Robber_d);
+					//act_Robber.SetDirection(rob_new_f, Robber_d);
 					actor.SetDirection(act_new_f, act_d);
 				}
-			}
+			
 		}
 		else if (code == FY_L)
 		{
 			if (attack_on_delay == 0)
 				attack_on_delay = 30;
+			for (int i = 0; i < count_donzo; i++) // find donzo
+			{
+				if (Donzo[i].HP > 0) Donzo[i].HP = 1;
+				Donzo[i].attacked_target = TRUE;//Lai 0105
+				Donzo[i].curPoseID = Donzo[i].heavy_damagedID;
+			}
 			for (int i = 0; i < count_robber; i++)
 			{
 				if (Robber[i].HP>0) Robber[i].HP = 1;
@@ -1102,6 +1277,9 @@ void LyuBu_turn(){
 
 void Movement(BYTE code, BOOL4 value)
 {
+	if (event_num || Lyubu.HP <= 0){
+		return;
+	}
 	// Homework #01 part 2
 	// ....
 	FnCharacter actor;
@@ -1118,7 +1296,7 @@ void Movement(BYTE code, BOOL4 value)
 			{
 				Lyubu.curPoseID = Lyubu.runID;
 				actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);
-				actor.Play(START, 0.0f, FALSE, TRUE);
+				//actor.Play(START, 0.0f, FALSE, TRUE);
 			}
 		}
 	}
@@ -1127,10 +1305,205 @@ void Movement(BYTE code, BOOL4 value)
 		actor.TurnRight(-angle[cur_angle]);
 		Lyubu.curPoseID = Lyubu.idleID;
 		actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);
-		actor.Play(START, 0.0f, FALSE, TRUE);
+		//actor.Play(START, 0.0f, FALSE, TRUE);
 		cur_angle = 0;
 	}	
 	LyuBu_turn();
+}
+
+//Lai
+void call_Donzo(float loc_pos[], int num)
+{
+	float Donzo_pos[3];
+	count_donzo = num;
+
+	for (int i = 0; i < num; i++)
+	{
+		Donzo_pos[0] = loc_pos[0] + (rand() % 200)*1.0f - 100.0f;
+		Donzo_pos[1] = loc_pos[1] + (rand() % 200)*1.0f - 100.0f;
+		Donzo_pos[2] = loc_pos[2];
+		Donzo[i].Initiate(sID, terrainRoomID, beOK, Donzo_pos);
+
+	}
+
+}
+
+//Lai
+void Donzo_play(float act_pos[], int skip)
+{
+
+	int num = count_donzo;
+	bool anyone_live = FALSE;
+	float new_f[3], new_d[3] = { 0, 0, 1 };
+	int dis[3] = { 300, 85, 60 }; // too far/ mid/ too close
+	live = 0;
+	for (int i = 0; i < num; i++)
+		//lo play Robber pose
+	{
+
+		if (Donzo[i].attacked_target && attack_on_delay>0)
+			Donzo[i].isattack(attack_on_delay);
+		Donzo[i].play(attack_on_delay, skip);
+
+		if (Donzo[i].HP < 1) {
+			Donzo[i].actor_clean(beOK);
+			continue;
+		}
+		else anyone_live = TRUE;
+		live++;
+		int run_flag = 1;
+		Donzo[i].SetDisWithL(Donzo[i].dis(act_pos));
+
+		if (!Donzo[i].attacked_target || Donzo[i].GetLeaveWithL() < 0)
+		{
+			//for run
+			if (Donzo[i].GetLeaveWithL() >= 0)
+			{
+				if (Donzo[i].GetStopFlag() != 0 && frame_clock % 10 == 0)
+				{
+					int sf = Donzo[i].GetStopFlag();
+					Donzo[i].SetStopFlag(--sf);
+				}
+
+				if (Donzo[i].GetDisWithL() >= dis[0])
+				{
+					Donzo[i].SetLeaveWithL(2);
+					new_f[0] = -(Donzo[i].pos[0] - act_pos[0]);
+					new_f[1] = -(Donzo[i].pos[1] - act_pos[1]);
+					new_f[2] = Donzo[i].pos[2] - act_pos[2];
+
+					Donzo[i].actor.SetDirection(new_f, new_d);
+					Donzo[i].SetPosition(30);
+				}
+				else if (dis[0] > Donzo[i].GetDisWithL() && Donzo[i].GetDisWithL() > dis[1])
+				{
+					for (int j = 0; j < num && run_flag == 1 && Donzo[i].GetStopFlag() == 0; j++)
+					{
+						if (j == i || (Donzo[j].HP < 1)) continue;
+
+						float dis_i_j = Donzo[i].dis(Donzo[j].pos);
+
+						if (dis_i_j <= 30) // too close, stop
+						{
+							if (Donzo[j].dis(act_pos) < Donzo[i].GetDisWithL())
+							{
+
+								new_f[0] = (Donzo[i].pos[0] - act_pos[0]);
+								new_f[1] = -(Donzo[i].pos[1] - act_pos[1]);
+								new_f[2] = Donzo[i].pos[2] - Donzo[j].pos[2];
+								if (pow(new_f[0], 2)>pow(new_f[1], 2))
+								{
+									if (new_f[0] * new_f[1] > 0) new_f[1] = new_f[1] * 100;
+									else					   new_f[1] = new_f[1] * -100;
+									new_f[1] = new_f[1] * Donzo[i].GetFindWay();
+								}
+								else  {
+									if (new_f[0] * new_f[1] > 0) new_f[0] = new_f[0] * 100;
+									else					   new_f[0] = new_f[0] * -100;
+									new_f[0] = new_f[0] * Donzo[i].GetFindWay();
+								}// control the dir... always right/left setted by Robber[i].find_way;
+
+								Donzo[i].actor.SetDirection(new_f, new_d);
+
+								if (Donzo[j].dis(act_pos) > dis[1] * 1.1)
+									Donzo[j].SetPosition(30 - dis_i_j);
+								else
+									Donzo[i].SetPosition(-5);
+
+								Donzo[i].SetStopFlag(rand() % 5 + 1);
+								run_flag = 0; //identify a robber j a time
+								Donzo[i].SetLeaveWithL(0);
+							}
+						}
+
+					}//for (int j = 0; j < num; j++ ...
+
+					if (Donzo[i].GetStopFlag() == 0 || dis[1] > Donzo[i].dis(act_pos)) // Robber[i].stop_flag>0 : someone between Robber[i] and lyubu
+					{
+
+						new_f[0] = -(Donzo[i].pos[0] - act_pos[0]);
+						new_f[1] = -(Donzo[i].pos[1] - act_pos[1]);
+						new_f[2] = Donzo[i].pos[2] - act_pos[2];
+
+						Donzo[i].actor.SetDirection(new_f, new_d);
+					}
+					if (run_flag == 1 && Donzo[i].GetDisWithL() > dis[1])
+						Donzo[i].SetLeaveWithL(1);
+
+					Donzo[i].SetPosition(run_flag*(rand() % 10) / (Donzo[i].GetStopFlag() + 1));//real speed=run_flag*0~10*1.0
+
+				}//else if (500>Robber[i].dis(act_pos) && Robber[i].di....
+
+				else if (dis[1] >= Donzo[i].GetDisWithL() && Donzo[i].GetDisWithL() > dis[2])
+				{
+					Donzo[i].SetLeaveWithL(0);
+					if (Donzo[i].GetStopFlag() != 0)
+						Donzo[i].SetStopFlag(rand() % 10);
+
+					new_f[0] = -(Donzo[i].pos[0] - act_pos[0]);
+					new_f[1] = -(Donzo[i].pos[1] - act_pos[1]);
+					new_f[2] = Donzo[i].pos[2] - act_pos[2];
+					Donzo[i].actor.SetDirection(new_f, new_d);
+					Donzo[i].SetPosition(0);
+				}
+
+
+			}// for run Robber[i].leave_with_L >= 0;
+
+			if (dis[2] > Donzo[i].GetDisWithL()) // too close
+			{
+				//Robber[i].leave_with_L = 0;
+				new_f[0] = -(Donzo[i].pos[0] - act_pos[0]);
+				new_f[1] = -(Donzo[i].pos[1] - act_pos[1]);
+				new_f[2] = Donzo[i].pos[2] - act_pos[2];
+				Donzo[i].actor.SetDirection(new_f, new_d);
+
+				Donzo[i].SetPosition(run_flag*-1.0*(rand() % 10));
+			}
+
+
+
+			// attack
+			if (Lyubu.HP>1)
+			if ((frame_clock % 2 == 0 && !Donzo[i].action_lock) || Donzo[i].GetLeaveWithL() < 0)
+			if ((dis[1] >= Donzo[i].GetDisWithL() && rand() % 10 < 1) || Donzo[i].GetLeaveWithL() < 0)
+			{
+				int attack_levet = Donzo[i].attackplayer(rand()%4);
+				if (attack_levet>0 && dis[1] >= Donzo[i].GetDisWithL())
+				{
+					Lyubu.HP -= attack_levet * 100;
+					
+					if (Lyubu.HP < 100)
+					{
+						FnCharacter actor;
+						actor.ID(Lyubu.id);
+						Lyubu.curPoseID = Lyubu.dieID;
+						actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);
+					}
+					else
+					{
+						if (attack_levet>3)
+						{
+							Lyubu.curPoseID = Lyubu.heavy_damagedID;
+							Lyubu.is_attack_frame = 24;
+						}
+						else
+						{
+							Lyubu.is_attack_frame = 19;
+							Lyubu.curPoseID = Lyubu.left_damagedID;
+						}
+					}
+				}
+			}
+
+		}//		if (!Robber[i].attacked_target || Robber[i].leave_with_L < 0)
+
+	} //for int i
+
+	if (!anyone_live && next_wave == 0) // all die
+	{
+		next_wave = 150;
+	}
 }
 
 //Lai
@@ -1310,6 +1683,7 @@ void QuitGame(BYTE code, BOOL4 value)
 {
 	if (code == FY_ESCAPE) {
 		if (value) {
+			FyEndMedia();
 			FyQuitFlyWin32();
 		}
 	}

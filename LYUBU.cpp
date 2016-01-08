@@ -14,6 +14,9 @@ LYUBU::~LYUBU()
 
 void LYUBU::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK)
 {
+	//store scene ID for FX
+	sid = sID;
+	
 	FnScene scene;
 	scene.ID(sID);
 	id = scene.LoadCharacter("Lyubu2");
@@ -81,7 +84,73 @@ void LYUBU::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK)
 	maxHP = 10000;
 	is_attack = 0;
 	old_f[0] = 0; old_f[1] = 0; old_f[2] = 0;
+}
 
+
+void LYUBU::play(int attack_on_delay, int skip){
+	FnCharacter actor;
+	actor.ID(id);
+	// tai FX
+	/*if (is_attack_frame == 20)
+	{
+		FySetGameFXPath("Data\\NTU6\\FX");
+		FnScene scene(sid);
+
+		// remove the old one if necessary
+		if (gFXID != NULL) {
+			scene.DeleteGameFXSystem(gFXID);
+		}
+
+		// create a new game FX system
+		gFXID = scene.CreateGameFXSystem();
+
+		// case 1 : we create/move a dummy object on the hit position
+		FnGameFXSystem gxS(gFXID);
+
+		if (dummyID == FAILED_ID) {
+			dummyID = scene.CreateObject(MODEL);
+		}
+
+		FnObject dummy(dummyID);
+		float FX_pos[3] = { pos[0], pos[1], 100.0f };
+		dummy.SetPosition(FX_pos);
+
+		// play the FX on it
+		BOOL4 beOK = gxS.Load("HurtDir", TRUE);
+		if (beOK) {
+			gxS.SetParentObjectForAll(dummyID);
+		}
+	}
+*/
+
+	if (((curPoseID != runID && curPoseID != idleID  && curPoseID != dieID) || action_lock) && attack_on_delay < 50)
+	{
+		if ( is_attack_frame != 0) 	 is_attack_frame --;
+
+		if (!action_lock)
+		{
+			action_lock = TRUE;
+			actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
+			actor.Play(ONCE, (float)skip, FALSE, TRUE);//0105
+		}
+		else if (action_lock)
+			actor.Play(ONCE, (float)skip, FALSE, TRUE);
+
+		if (HP>0 && attack_on_delay == 0 && is_attack_frame==0)
+		{
+			curPoseID = idleID;
+			actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
+			actor.Play(START, (float)skip, FALSE, TRUE);
+			action_lock = FALSE;
+		}
+	}
+
+	else if (curPoseID != dieID)
+	{
+		actor.Play(LOOP, (float)skip, FALSE, TRUE);
+	}
+	else
+		actor.Play(ONCE, (float)skip, FALSE, TRUE);
 }
 
 float* LYUBU::GetPosition()
@@ -112,4 +181,38 @@ void LYUBU::SetBlood(int curHP)
 
 	FnBillboard bb(bloodBar);
 	bb.SetPositionSize(NULL, size);
+}
+
+void LYUBU::SetFX()
+{
+	FnScene scene;
+	scene.ID(sid);
+	// remove the old one if necessary
+	FySetGameFXPath("Data\\NTU6\\FX");
+
+	if (gFXID != NULL) {
+		scene.DeleteGameFXSystem(gFXID);
+	}
+
+	// create a new game FX system
+	gFXID = scene.CreateGameFXSystem();
+
+	// case 1 : we create/move a dummy object on the hit position
+	FnGameFXSystem gxS(gFXID);
+
+	if (dummyID == FAILED_ID) {
+		dummyID = scene.CreateObject(MODEL);
+	}
+
+	FnObject dummy(dummyID);
+	float FX_pos[3] = { pos[0], pos[1], pos[2] };
+	dummy.SetPosition(FX_pos);
+
+	// play the FX on it
+	BOOL4 beOK = gxS.Load("11", TRUE);
+	if (beOK) {
+		gxS.SetParentObjectForAll(dummyID);
+	}
+
+
 }

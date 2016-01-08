@@ -12,6 +12,9 @@ public:
 	void SetOldFaceDir(float*);
 	void SetPosition(float*);
 	void SetBlood(int);
+	void SetFX();
+
+	void play(int, int);//******************
 
 	CHARACTERid id;
 	//attack
@@ -26,13 +29,23 @@ public:
 	OBJECTid bloodBarObj;
 	GEOMETRYid bloodBar;
 
+	// FX
+	SCENEid sid;
+	GAMEFX_SYSTEMid gFXID = FAILED_ID;
+	OBJECTid dummyID = FAILED_ID; // object for display FX
+
 	
 	int HP;
 	int maxHP;
 	int is_attack;
+	int is_attack_frame;//********
 private:
 	float pos[3];
 	//LyuBu old face direction
 	float old_f[3];
+
+
+	bool action_lock;
+
 };
 

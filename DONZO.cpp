@@ -66,6 +66,8 @@ void DONZO::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK, float init_
 	is_attack_frame = 0;
 	state = 0;
 
+	for (int i = 0; i < 5;i++)
+		hit_time [i]= -1;
 	stop_flag = 0;
 	leave_with_L = 2;//2:>500 1:500~100 0: <100
 	attack_clock = 0;
@@ -76,38 +78,7 @@ void DONZO::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK, float init_
 	if (find_way == 0) find_way = -1;
 }
 void DONZO::isattack(int index){
-	/*
-	if (curPoseID != heavy_damagedID && curPoseID != light_damagedID){
-		if (is_attack_frame > 0)
-			is_attack_frame -= 2;
-		return;
-	}
-	if (is_attack_frame == 0 && curPoseID == light_damagedID){
-		is_attack_frame = 2;
-	}
-	else if (is_attack_frame == 0 && curPoseID == heavy_damagedID){
-		is_attack_frame = 3;
-	}
-	if (is_attack_frame > 0){
-		is_attack_frame--;
-		if (curPoseID == light_damagedID)
-		{
-			HP -= 1;
-			SetBlood(HP);
-		}
-		else if (curPoseID == heavy_damagedID)
-		{
-			HP -= 2;
-			SetBlood(HP);
-		}
-	}
-
-
-	if (curPoseID != dieID && HP <= 0){
-		curPoseID = dieID;
-		actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
-		actor.Play(START, 0.0f, FALSE, TRUE);
-	}*/
+	
 	if (is_attack_frame == 0 && curPoseID == light_damagedID){
 		is_attack_frame = 25;
 		damaged_type = 1;
@@ -145,42 +116,6 @@ void DONZO::isattack(int index){
 		actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
 
 	}
-}
-void DONZO::attackplayer(int atk_lv)
-{
-	if (attack_clock == 0)
-	{
-
-		leave_with_L = -1;
-
-		if (atk_lv == 0)
-		{
-			attack_clock = 34;
-			curPoseID = light_attack1ID;
-		}
-		else if (atk_lv == 1)
-		{
-			attack_clock = 24;
-			curPoseID = light_attack2ID;
-		}
-		else if (atk_lv == 2)
-		{
-			attack_clock = 29;
-			curPoseID = heavy_attack1ID;
-			actor.MoveForward(2.0f, TRUE, FALSE, 0.0f, TRUE);
-
-		}
-	}
-	else if (attack_clock > 0)
-	{
-		attack_clock--;
-		if (attack_clock == 0)
-		{
-
-			leave_with_L = 0;
-		}
-	}
-
 }
 void DONZO::play(int attack_on_delay, int skip){
 	// tai FX
@@ -250,6 +185,75 @@ void DONZO::play(int attack_on_delay, int skip){
 	else
 		actor.Play(ONCE, (float)skip, FALSE, TRUE);
 }
+int DONZO::attackplayer(int atk_lv)
+{
+	/*
+	light_attack1ID = actor.GetBodyAction(NULL, "AttackL1");35
+	light_attack2ID = actor.GetBodyAction(NULL, "AttackL2");40
+	heavy_attack1ID = actor.GetBodyAction(NULL, "AttackH");85
+	heavy_attack2ID = actor.GetBodyAction(NULL, "HeavyAttack");65
+	*/
+	bool result=FALSE;
+
+	if (attack_clock == 0)
+	{
+
+		leave_with_L = -1;
+
+		if (atk_lv == 0)
+		{
+			attack_clock = 34;
+			curPoseID = light_attack1ID;
+			hit_time[0] = 15;
+			hit_level = 1;
+		}
+		else if (atk_lv == 1)
+		{
+			attack_clock = 39;
+			curPoseID = light_attack2ID;
+			hit_time [0]= 15;
+			hit_level = 1;
+		}
+		else if (atk_lv == 2)
+		{
+			attack_clock = 84;
+			curPoseID = heavy_attack1ID;
+			actor.MoveForward(2.0f, TRUE, FALSE, 0.0f, TRUE);
+			hit_time[0] = 60;
+			hit_time[1] = 40;
+			hit_time [2]= 15;
+			hit_level = 3;
+		}
+		else if (atk_lv == 3)
+		{
+			attack_clock = 64;
+			curPoseID = heavy_attack2ID;
+			actor.MoveForward(2.0f, TRUE, FALSE, 0.0f, TRUE);
+			hit_time [0]= 20;
+			hit_level = 20;
+		}
+	}
+	else if (attack_clock > 0)
+	{
+		attack_clock--;
+		if (attack_clock == 0)
+		{
+			leave_with_L = 0;
+			hit_level = 0;
+		}
+
+		for (int i = 0; i < 5;i++)
+		if (attack_clock == hit_time[i])
+		{
+			hit_time[i] = -1;
+			return hit_level;
+		}
+		 
+	}
+
+	return -1;
+}
+
 float* DONZO::GetPosition()
 {
 	return pos;
@@ -281,6 +285,20 @@ void DONZO::SetPosition(float fwd)
 		actor.Play(START, 0.0f, FALSE, TRUE);
 	}
 }
+
+float DONZO::dis(float Tpos[])//dis with Target
+{
+	actor.GetPosition(pos);
+	return sqrt(pow(Tpos[0] - pos[0], 2) + pow(Tpos[1] - pos[1], 2));
+
+}
+void DONZO::actor_clean(BOOL4&beOK)
+{
+	if (clean_clock > 0) clean_clock--;
+	else actor.DropToTrashCan(beOK);
+
+}
+
 int DONZO::GetState()
 {
 	return state;
