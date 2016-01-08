@@ -58,6 +58,9 @@ public:
 	bool attacked_target;
 	bool action_lock;
 	float pos[3];
+
+	// FX
+	SCENEid sid;
 	GAMEFX_SYSTEMid gFXID = FAILED_ID;
 	OBJECTid dummyID = FAILED_ID; // object for display FX
 

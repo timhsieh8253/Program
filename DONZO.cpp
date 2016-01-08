@@ -10,6 +10,10 @@ DONZO::~DONZO()
 {
 }
 void DONZO::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK, float init_pos[]){
+	
+	//store scene ID for FX
+	sid = sID;
+	
 	FnScene scene;
 	scene.ID(sID);
 	//Robber
@@ -72,7 +76,7 @@ void DONZO::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK, float init_
 	if (find_way == 0) find_way = -1;
 }
 void DONZO::isattack(int index){
-	
+	/*
 	if (curPoseID != heavy_damagedID && curPoseID != light_damagedID){
 		if (is_attack_frame > 0)
 			is_attack_frame -= 2;
@@ -103,6 +107,43 @@ void DONZO::isattack(int index){
 		curPoseID = dieID;
 		actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
 		actor.Play(START, 0.0f, FALSE, TRUE);
+	}*/
+	if (is_attack_frame == 0 && curPoseID == light_damagedID){
+		is_attack_frame = 25;
+		damaged_type = 1;
+	}
+	else if (is_attack_frame == 0 && curPoseID == heavy_damagedID){
+		is_attack_frame = 35;
+		damaged_type = 2;
+
+
+	}
+
+	if (is_attack_frame > 0){
+		is_attack_frame--;
+		if (damaged_type == 1)
+		{
+			HP -= 1;
+		}
+		else if (damaged_type == 2)
+		{
+			HP -= 2;
+
+		}
+		SetBlood(HP);
+
+		if (is_attack_frame <1)
+			attacked_target = FALSE;
+	}
+
+
+	if (curPoseID != dieID && HP <= 0){
+		is_attack_frame = 0;//Lai
+		attacked_target = FALSE;//Lai
+		clean_clock = 90;
+		curPoseID = dieID;
+		actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
+
 	}
 }
 void DONZO::attackplayer(int atk_lv)
@@ -142,6 +183,39 @@ void DONZO::attackplayer(int atk_lv)
 
 }
 void DONZO::play(int attack_on_delay, int skip){
+	// tai FX
+	if (is_attack_frame == 20)
+	{
+		FySetGameFXPath("Data\\NTU6\\FX");
+		FnScene scene(sid);
+
+		// remove the old one if necessary
+		if (gFXID != NULL) {
+			scene.DeleteGameFXSystem(gFXID);
+		}
+
+		// create a new game FX system
+		gFXID = scene.CreateGameFXSystem();
+
+		// case 1 : we create/move a dummy object on the hit position
+		FnGameFXSystem gxS(gFXID);
+
+		if (dummyID == FAILED_ID) {
+			dummyID = scene.CreateObject(MODEL);
+		}
+
+		FnObject dummy(dummyID);
+		float FX_pos[3] = { pos[0], pos[1], 100.0f };
+		dummy.SetPosition(FX_pos);
+
+		// play the FX on it
+		BOOL4 beOK = gxS.Load("HurtDir", TRUE);
+		if (beOK) {
+			gxS.SetParentObjectForAll(dummyID);
+		}
+	}
+	
+	
 	if (((curPoseID != runID && curPoseID != idleID  && curPoseID != dieID) || action_lock) && attack_on_delay < 50)
 	{
 

@@ -12,6 +12,9 @@ ROBBER::~ROBBER()
 {
 }
 void ROBBER::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK, float init_pos[]){
+	//store scene ID for FX
+	sid = sID;
+	
 	FnScene scene;
 	scene.ID(sID);
 	//Robber
@@ -77,6 +80,7 @@ void ROBBER::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK, float init
 
 	find_way = rand() % 2;
 	if (find_way == 0) find_way = -1;
+
 }
 void ROBBER::isattack(int attack_on_delay){
 
@@ -88,6 +92,8 @@ void ROBBER::isattack(int attack_on_delay){
 	else if (is_attack_frame == 0 && curPoseID == damaged2ID){
 		is_attack_frame = 36;
 		damaged_type = 2;
+
+
 	}
 	
 	if (is_attack_frame > 0){
@@ -120,7 +126,37 @@ void ROBBER::isattack(int attack_on_delay){
 void ROBBER::play(int attack_on_delay, int skip){
 //	FnCharacter actor;
 //	actor.ID(id);
+	// tai Fdameged FX
+	if (attacked_target && is_attack_frame == 20)
+	{
+		FySetGameFXPath("Data\\NTU6\\FX");
+		FnScene scene(sid);
 
+		// remove the old one if necessary
+		if (gFXID != NULL) {
+			scene.DeleteGameFXSystem(gFXID);
+		}
+
+		// create a new game FX system
+		gFXID = scene.CreateGameFXSystem();
+
+		// case 1 : we create/move a dummy object on the hit position
+		FnGameFXSystem gxS(gFXID);
+
+		if (dummyID == FAILED_ID) {
+			dummyID = scene.CreateObject(MODEL);
+		}
+
+		FnObject dummy(dummyID);
+		float FX_pos[3] = { pos[0], pos[1], 40.0f };
+		dummy.SetPosition(FX_pos);
+
+		// play the FX on it
+		BOOL4 beOK = gxS.Load("attackEffect", TRUE);
+		if (beOK) {
+			gxS.SetParentObjectForAll(dummyID);
+		}
+	}
 	//Lai
 	if (((curPoseID != runID && curPoseID != combatidleID  && curPoseID != dieID) || action_lock)&& attack_on_delay < 50)
 	{
@@ -130,9 +166,13 @@ void ROBBER::play(int attack_on_delay, int skip){
 			action_lock = TRUE;
 			actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
 			actor.Play(ONCE, (float)skip, FALSE, TRUE);//0105
+
 		}
 		if (action_lock)
+		{
 			actor.Play(ONCE, (float)skip, FALSE, TRUE);
+		}
+			
 		
 		if (HP>0 && attack_on_delay == 0 && attack_clock==0)
 		{
