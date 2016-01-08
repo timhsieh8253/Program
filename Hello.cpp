@@ -18,6 +18,7 @@ Last Updated : 1004, 2015, Kevin C. Wang
 #include "DONZO.h"
 #include "ROBBER.h"
 #include "FOOTMAN.h"
+#include "SORCERER.h"
 #include "dialog.h"
 #include "FyMedia.h"
 
@@ -30,6 +31,7 @@ LYUBU Lyubu;
 DONZO Donzo[100];
 ROBBER Robber[128];
 FOOTMAN footman;
+SORCERER sorcerer;
 
 int attack_on_delay = 0;//for attack delay
 bool action_lock = 0;//
@@ -557,6 +559,7 @@ void FyMain(int argc, char **argv)
 	float init_pos[3] = { 3790.0f, -3158.0f, 1000.0f };
 //	Donzo[0].Initiate(sID, terrainRoomID, beOK,init_pos);
 	footman.Initiate(sID, terrainRoomID, beOK);
+	sorcerer.Initiate(sID, terrainRoomID, beOK);
 
 
 	// translate the camera
@@ -705,7 +708,7 @@ void GameAI(int skip)
 	else if (robber_appear_lock == 1)
 	{
 		float dist = sqrt(pow((act_pos[0] - robber_pos[2][0]), 2) + pow((act_pos[1] - robber_pos[2][1]), 2));
-		if (dist < 200)
+		if (dist < 300)
 		{
 			float call_pos[2] = { 2201, -2656 };
 			robber_appear_lock--;
@@ -713,6 +716,33 @@ void GameAI(int skip)
 			call_Robber(call_pos, 5);
 		}
 	}
+	else if(robber_appear_lock == 0 )
+	{
+		float dist = sqrt(pow((act_pos[0] - 2497), 2) + pow((act_pos[1] + 2083), 2));
+		if (dist < 50){
+			event_num = 3;
+			dia.start_dialog(event_num);
+			return;
+		}
+		dist = sqrt(pow((act_pos[0] - 2300), 2) + pow((act_pos[1] + 2705), 2));
+		if (dist < 200)
+		{
+			robber_appear_lock--;
+			// enter scene 2
+			event_num = 5;
+			dia.start_dialog(event_num);
+		}
+	}
+	else if (robber_appear_lock == -1){
+		float dist = sqrt(pow((act_pos[0] - 2497), 2) + pow((act_pos[1] + 2083), 2));
+		if (dist < 50){
+			event_num = 3;
+			dia.start_dialog(event_num);
+			robber_appear_lock--;
+			return;
+		}
+	}
+
 	//Lai
 	Robber_play(act_pos, skip);
 	Donzo_play(act_pos, skip);
@@ -1160,14 +1190,14 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 
 			for (int i = 0; i < count_donzo; i++) // find donzo
 				{
-				if (Donzo[i].GetDisWithL()>200 || Donzo[i].HP == 0) continue;	
+				if (Donzo[i].GetDisWithL()>150 || Donzo[i].HP == 0) continue;	
 				if (Donzo[i].HP < Donzo[tar].HP) tar = i;
 				Donzo[i].attacked_target = TRUE;//Lai 0105
 				Donzo[i].curPoseID = Donzo[i].heavy_damagedID;
 				}				
 				for (int i = 0; i < count_robber; i++)
 				{
-					if (Robber[i].GetDisWithL()>200 || Robber[i].HP==0) continue;
+					if (Robber[i].GetDisWithL()>150 || Robber[i].HP == 0) continue;
 					if (Robber[i].HP < Robber[tar].HP) tar = i;
 					Robber[i].attacked_target = TRUE;//Lai 0105
 					Robber[i].curPoseID = Robber[i].damaged2ID;
@@ -1530,7 +1560,7 @@ void Robber_play(float act_pos[],int skip)
 	int num = count_robber;
 	bool anyone_live=FALSE;
 	float new_f[3], new_d[3] = { 0, 0, 1 };
-	int dis[3] = {300,85,60}; // too far/ mid/ too close
+	int dis[3] = {450,85,60}; // too far/ mid/ too close
 	live = 0;
 	for (int i = 0; i < num; i++)
 		//lo play Robber pose
