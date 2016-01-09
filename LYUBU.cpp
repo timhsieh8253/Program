@@ -24,8 +24,8 @@ void LYUBU::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK)
 	bloodBarObj = scene.CreateObject(MODEL);     // blood bar object id
 	FnObject model(bloodBarObj);
 	float size[2], color[3];
-	size[0] = 20.0f;
-	size[1] = 2.0f;
+	size[0] = 200.0f;
+	size[1] = 10.0f;
 	color[0] = 1.0f;
 	color[1] = 0.0f;
 	color[2] = 0.0f;
@@ -46,12 +46,35 @@ void LYUBU::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK)
 	actor.SetTerrainRoom(terrainRoomID, 10.0f);
 	beOK = actor.PutOnTerrain(pos);
 
+	// blood init
+	Lyubu_blood = FyCreateScene();
+	scene.ID(Lyubu_blood);
+	scene.SetSpriteWorldSize(1024, 768);
+	Lyubu_backGID = scene.CreateObject(SPRITE);
+	FnSprite sp;
+	sp.ID(Lyubu_backGID);
+	sp.SetSize(500, 20);
+	sp.SetPosition(150, 690, 0);
+	float rgb[4];
+	rgb[0] = 1.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = 1.0f;
+	sp.SetColor(rgb);
+	blood_size = 500;
+	//head init
+	Lyubu_head = FyCreateScene();
+	scene.ID(Lyubu_head);
+	scene.SetSpriteWorldSize(1024, 768);
+	headID = scene.CreateObject(SPRITE);
+	sp.ID(headID);
+	//FySetTexturePath("Data\\NTU6");
+	sp.SetImage("Lyu3", 0, NULL, 0, NULL, NULL, MANAGED_MEMORY, FALSE, FALSE);
+	sp.SetSize(100, 100);
+	sp.SetPosition(30, 650, 0);
 	//blood
 	// get the base object of Lyubu
-	OBJECTid baseID = actor.GetBaseObject();
+	//OBJECTid baseID = scene.CreateObject(SPRITE);
 	// make the blood bar's parent is the base and raise up the blood bar higher than the head of lyubu
-	model.SetParent(baseID);
-	model.Translate(0.0f, 0.0f, 90.0f, REPLACE);
+	//model.SetParent(baseID);
+	//model.SetPosition(0,0,0);
 
 	// Get two character actions pre-defined at Lyubu2
 	idleID = actor.GetBodyAction(NULL, "Idle");
@@ -174,13 +197,15 @@ void LYUBU::SetPosition(float* p)
 	pos[2] = p[2];
 }
 void LYUBU::SetBlood(int curHP)
-{
-	float size[2];
-	size[0] = 20.0f*curHP / maxHP;
-	size[1] = 2.0f;
-
-	FnBillboard bb(bloodBar);
-	bb.SetPositionSize(NULL, size);
+{ 
+	FnSprite sp;
+	sp.ID(Lyubu_backGID);
+	sp.SetSize(((float)curHP / (float)maxHP)*(float)blood_size, 20);
+	sp.SetPosition(150, 690, 0);
+	float rgb[4];
+	rgb[0] = 1.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = 1.0f;
+	sp.SetColor(rgb);
+	
 }
 
 void LYUBU::SetFX()

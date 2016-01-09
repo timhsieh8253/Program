@@ -39,11 +39,14 @@ public:
 	int maxHP;
 	int is_attack;
 	int is_attack_frame;//********
+	int blood_size;
+
+	SCENEid Lyubu_blood, Lyubu_head;
+	OBJECTid Lyubu_backGID,headID;
 private:
 	float pos[3];
 	//LyuBu old face direction
-	float old_f[3];
-
+	float old_f[3]; 
 
 	bool action_lock;
 

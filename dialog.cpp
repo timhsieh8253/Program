@@ -86,7 +86,7 @@ void dialog::start_dialog(int num){
 	else if(num == 2)
 		content_end = 6;
 	else if(num == 3)
-		content_end = 12;
+		content_end = 13;
 	else if(num == 4)
 		content_end = 5;
 	else if(num == 5)
@@ -215,9 +215,11 @@ int dialog::next_content(){
 			text0.ID(fullcontentID);
 			text0.SetArea(1024, 768);
 			text0.SetParent(full_backGID);
-			text0.UseFont("新細明體", 50, TRUE, FALSE);			
+			text0.UseFont("新細明體", 40, TRUE, FALSE);			
 			text0.Begin();
-			text0.Write(300, 384, "按空白鍵以開始", 255, 255, 255, 255);
+			text0.Write(300, 384, "民國初年，呂布和董卓分手後，", 255, 255, 255, 255);
+			text0.Write(300, 444, "呂布踏上尋找紅粉佳人的旅程...", 255, 255, 255, 255);
+			text0.Write(300, 504, "(按空白鍵以開始遊戲)", 255, 255, 255, 255);
 			text0.End();   // be sure to call this function when you finish the writing
 			
 		}
@@ -824,7 +826,7 @@ int dialog::next_content(){
 			text0.UseFont("新細明體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布：", 255, 255, 255, 255);
-			text0.Write(50, 60, "在過來我揍死你!!", 255, 255, 255, 255);	
+			text0.Write(50, 60, "再過來我揍死你!!", 255, 255, 255, 255);	
 			text0.End();		
 			
 			sp.ID(dialog_backGID);
@@ -883,7 +885,23 @@ int dialog::next_content(){
 			sp.SetSize(800, 200);
 			set_pic(2, sp);
 		}
-		else if(content_now == 12){
+		else if (content_now == 12){
+			FnSprite sp;
+			FnSpriteText text0;
+
+			text0.ID(contentID);
+			text0.SetArea(800, 200);
+			text0.SetParent(dialog_backGID);
+			text0.UseFont("新細明體", 25, TRUE, FALSE);
+			text0.Begin();
+			text0.Write(50, 60, "呂布進入憤怒模式", 255, 255, 255, 255);
+			text0.End();
+
+			sp.ID(dialog_backGID);
+			sp.SetSize(800, 200);
+			set_pic(2, sp);
+		}
+		else if(content_now == 13){
 			FnSprite sp;
 			FnSpriteText text0;
 			

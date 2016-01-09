@@ -1,5 +1,6 @@
 #include "DONZO.h"
 #include "FlyWin32.h"
+#include "FyMedia.h"
 
 DONZO::DONZO()
 {
@@ -114,6 +115,11 @@ void DONZO::isattack(int index){
 		clean_clock = 90;
 		curPoseID = dieID;
 		actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
+		FnMedia mp;
+		FyBeginMedia("Data\\NTU6\\Media", 2);
+		mmID = FyCreateMediaPlayer("samurai_shouting1.mp3", 0, 0, 800, 600);
+		mp.Object(mmID);
+		mp.Play(ONCE);
 
 	}
 }
@@ -140,11 +146,11 @@ void DONZO::play(int attack_on_delay, int skip){
 		}
 
 		FnObject dummy(dummyID);
-		float FX_pos[3] = { pos[0], pos[1], 100.0f };
+		float FX_pos[3] = { pos[0], pos[1], 80.0f };
 		dummy.SetPosition(FX_pos);
 
 		// play the FX on it
-		BOOL4 beOK = gxS.Load("HurtDir", TRUE);
+		BOOL4 beOK = gxS.Load("attackEffect", TRUE);
 		if (beOK) {
 			gxS.SetParentObjectForAll(dummyID);
 		}

@@ -1,5 +1,6 @@
 #pragma once
 #include "FlyWin32.h"
+#include "FyMedia.h"
 
 class DONZO
 {
@@ -63,6 +64,10 @@ public:
 	SCENEid sid;
 	GAMEFX_SYSTEMid gFXID = FAILED_ID;
 	OBJECTid dummyID = FAILED_ID; // object for display FX
+
+	//Music
+	MEDIAid mmID;
+
 
 private:
 	float old_f[3];

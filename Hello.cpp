@@ -47,7 +47,7 @@ TEXTid textID = FAILED_ID;
 // robber appear variable
 int robber_appear_lock = 3; // total three waves of robber 
 float robber_pos[3][2] = { { 3572, -3145 }, { 3427, -2703 }, { 2704, -2600 } };
-
+int angary_mode = 0;
 
 // some globals
 int frame = 0;
@@ -376,6 +376,7 @@ void do_event(int skip){
 			play_media++;
 			float d_pos[2] = { 30, 2403 };
 			call_Donzo(d_pos, 1);
+			angary_mode = 1;
 		}
 		dia.next_content();
 		frame_cal = 0;
@@ -385,11 +386,20 @@ void do_event(int skip){
 		dia.next_content();
 	}
 	else if (event_num == 3 && dia.content_now == 4){
+		//!! shake
+		if (!play_media){
+			play_media++;
+			mmID_background = FyCreateMediaPlayer("Thunder.mp3", 0, 0, 800, 600);
+			mP0.Object(mmID_background);
+			mP0.Play(ONCE);
+		}
+		
 		frame_cal++;
 		if (frame_cal<24){
 			movie4();
 			if (frame_cal == 23)
 			{
+				mP0.Stop();
 				mmID_background = FyCreateMediaPlayer("bossbattle.mp3", 0, 0, 800, 600);
 				mP0.Object(mmID_background);
 				mP0.Play(ONCE);
@@ -701,7 +711,7 @@ void FyMain(int argc, char **argv)
 	
 	//dialog part
 	dialog_init();
-	event_num = 1;
+	event_num = 3;
 	dia.start_dialog(event_num);
 	FyDefineHotKey(FY_SPACE, Space_func, FALSE);  // escape for quiting the game
 	
@@ -786,7 +796,7 @@ void GameAI(int skip)
 		{
 			float call_pos[2] = { 3494, -3142 };
 			robber_appear_lock--;
-			count_robber = 0;
+			//count_robber = 0;
 			event_num = 2;
 			dia.start_dialog(event_num);
 			FySetTexturePath("Data\\NTU6\\Characters");
@@ -800,7 +810,7 @@ void GameAI(int skip)
 		{
 			float call_pos[2] = { 2871, -2689 };
 			robber_appear_lock--;
-			count_robber = 0;
+			//count_robber = 0;
 			call_Robber(call_pos, 5);
 		}
 	}
@@ -811,7 +821,7 @@ void GameAI(int skip)
 		{
 			float call_pos[2] = { 2201, -2656 };
 			robber_appear_lock--;
-			count_robber = 0;
+			//count_robber = 0;
 			call_Robber(call_pos, 5);
 		}
 	}
@@ -1017,15 +1027,19 @@ void GameAI(int skip)
 			Lyubu.gFXID = FAILED_ID;
 		}
 	}
-	if (Donzo[0].gFXID != FAILED_ID) {
-		FnGameFXSystem gxS(Donzo[0].gFXID);
-		BOOL4 beOK = gxS.Play((float)skip, ONCE);
-		if (!beOK) {
-			FnScene scene(sID);
-			scene.DeleteGameFXSystem(Donzo[0].gFXID);
-			Donzo[0].gFXID = FAILED_ID;
+	for (int i = 0; i < count_donzo; i++)
+	{
+		if (Donzo[i].gFXID != FAILED_ID) {
+			FnGameFXSystem gxS(Donzo[i].gFXID);
+			BOOL4 beOK = gxS.Play((float)skip, ONCE);
+			if (!beOK) {
+				FnScene scene(sID);
+				scene.DeleteGameFXSystem(Donzo[i].gFXID);
+				Donzo[i].gFXID = FAILED_ID;
+			}
 		}
 	}
+	
 	for (int i = 0; i < count_robber; i++)
 	if (Robber[i].gFXID != FAILED_ID) {
 		FnGameFXSystem gxS(Robber[i].gFXID);
@@ -1051,6 +1065,10 @@ void RenderIt(int skip)
 	// render the whole scene
 	vp.ID(vID);
 	vp.Render3D(cID, TRUE, TRUE);
+
+	vp.RenderSprites(Lyubu.Lyubu_blood, FALSE, TRUE);
+	vp.RenderSprites(Lyubu.Lyubu_head, FALSE, TRUE);
+	
 	dia.render_dialog(vp,0);
 	// get camera's data
 	FnCamera camera;
@@ -1095,7 +1113,7 @@ void RenderIt(int skip)
 	actor.ID(Lyubu.id);
 	actor.GetPosition(pos);
 	sprintf
-		(resulttttt, " %8.3f %8.3f %8.3f %d %d %d %d %d %d", pos[0], pos[1], pos[2], cur_angle, Lyubu.HP, Robber[0].HP, live, next_wave, Robber[0].GetCleanClock());
+		(resulttttt, " %8.3f %8.3f %8.3f %d %d %d %d %d %d", pos[0], pos[1], pos[2], cur_angle, Lyubu.HP, Robber[0].HP, live, next_wave, count_robber);
 
 	text.Write(posS, 20, 35, 255, 255, 0);
 	text.Write(fDirS, 20, 50, 255, 255, 0);
@@ -1145,6 +1163,7 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 		Lyubu.is_attack = 1;
 		if (code == FY_A)
 		{   
+			
 			// FX 
 			//FySetGameFXPath("Data\\NTU6\\FX");
 			/*
@@ -1247,36 +1266,51 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 		}
 		else if (code == FY_S)
 		{
-			// FX 
-			//FySetGameFXPath("Data\\NTU6\\FX");
-			/*
-			FnScene scene(sID);
+			if (angary_mode)
+			{
+				// FX 
+				//FySetGameFXPath("Data\\NTU6\\FX");
+				
+				FnScene scene(sID);
 
-			// remove the old one if necessary
-			if (Lyubu.gFXID != NULL) {
-				scene.DeleteGameFXSystem(Lyubu.gFXID);
-			}
+				// remove the old one if necessary
+				if (Lyubu.gFXID != NULL) {
+					scene.DeleteGameFXSystem(Lyubu.gFXID);
+				}
 
-			// create a new game FX system
-			Lyubu.gFXID = scene.CreateGameFXSystem();
+				// create a new game FX system
+				Lyubu.gFXID = scene.CreateGameFXSystem();
 
-			// case 1 : we create/move a dummy object on the hit position
-			FnGameFXSystem gxS(Lyubu.gFXID);
+				// case 1 : we create/move a dummy object on the hit position
+				FnGameFXSystem gxS(Lyubu.gFXID);
 
-			if (dummyID == FAILED_ID) {
+				if (dummyID == FAILED_ID) {
 				dummyID = scene.CreateObject(MODEL);
-			}
+				}
+				
+				FnObject dummy(dummyID);
+				float FX_pos[3] = { act_pos[0], act_pos[1], act_pos[2] };
+				dummy.SetPosition(FX_pos);
+				
+				//OBJECTid base = actor.GetBaseObject();
+				//OBJECTid dummy = scene.CreateObject();
+				//FnObject model(dummy);
+				//dummy.SetParent(base);
 
-			FnObject dummy(dummyID);
-			float FX_pos[3] = { act_pos[0], act_pos[1], act_pos[2] };
-			dummy.SetPosition(FX_pos);
-
-			// play the FX on it
-			BOOL4 beOK = gxS.Load("11", TRUE);
-			if (beOK) {
+				// play the FX on it
+				BOOL4 beOK = gxS.Load("Lyubu_skill03", TRUE);
+				if (beOK) {
 				gxS.SetParentObjectForAll(dummyID);
+				}
 			}
-			*/
+
+			// Music
+			FnMedia mp;
+			FyBeginMedia("Data\\NTU6\\Media", 2);
+			mmID = FyCreateMediaPlayer("sword-slash4.mp3", 0, 0, 800, 600);
+			mp.Object(mmID);
+			mp.Play(ONCE);
+			
 			
 			Lyubu.curPoseID = Lyubu.heavy_attack2ID;
 			actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);
@@ -1318,6 +1352,40 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 		}
 		else if (code == FY_L)
 		{
+			if (angary_mode)
+			{
+				// FX 
+				//FySetGameFXPath("Data\\NTU6\\FX");
+
+				FnScene scene(sID);
+
+				// remove the old one if necessary
+				if (Lyubu.gFXID != NULL) {
+					scene.DeleteGameFXSystem(Lyubu.gFXID);
+				}
+
+				// create a new game FX system
+				Lyubu.gFXID = scene.CreateGameFXSystem();
+
+				// case 1 : we create/move a dummy object on the hit position
+				FnGameFXSystem gxS(Lyubu.gFXID);
+
+				if (dummyID == FAILED_ID) {
+					dummyID = scene.CreateObject(MODEL);
+				}
+
+				FnObject dummy(dummyID);
+				float FX_pos[3] = { act_pos[0], act_pos[1], act_pos[2] };
+				dummy.SetPosition(FX_pos);
+
+				// play the FX on it
+				BOOL4 beOK = gxS.Load("Skill_2", TRUE);
+				if (beOK) {
+					gxS.SetParentObjectForAll(dummyID);
+				}
+			}
+			
+			
 			if (attack_on_delay == 0)
 				attack_on_delay = 30;
 			for (int i = 0; i < count_donzo; i++) // find donzo
@@ -1448,9 +1516,9 @@ void call_Donzo(float loc_pos[], int num)
 {
 	FySetTexturePath("Data\\NTU6\\Characters");
 	float Donzo_pos[3];
-	count_donzo = num;
+	
 
-	for (int i = 0; i < num; i++)
+	for (int i = count_donzo; i <count_donzo+ num; i++)
 	{
 		Donzo_pos[0] = loc_pos[0] + (rand() % 200)*1.0f - 100.0f;
 		Donzo_pos[1] = loc_pos[1] + (rand() % 200)*1.0f - 100.0f;
@@ -1458,7 +1526,7 @@ void call_Donzo(float loc_pos[], int num)
 		Donzo[i].Initiate(sID, terrainRoomID, beOK, Donzo_pos);
 
 	}
-
+	count_donzo += num;
 }
 
 //Lai
@@ -1469,7 +1537,7 @@ void Donzo_play(float act_pos[], int skip)
 	int num = count_donzo;
 	bool anyone_live = FALSE;
 	float new_f[3], new_d[3] = { 0, 0, 1 };
-	int dis[3] = { 300, 85, 60 }; // too far/ mid/ too close
+	int dis[3] = { 450, 85, 60 }; // too far/ mid/ too close
 	live = 0;
 	for (int i = 0; i < num; i++)
 		//lo play Robber pose
@@ -1517,7 +1585,7 @@ void Donzo_play(float act_pos[], int skip)
 
 						float dis_i_j = Donzo[i].dis(Donzo[j].pos);
 
-						if (dis_i_j <= 30) // too close, stop
+						if (dis_i_j <= 45) // too close, stop
 						{
 							if (Donzo[j].dis(act_pos) < Donzo[i].GetDisWithL())
 							{
@@ -1605,8 +1673,36 @@ void Donzo_play(float act_pos[], int skip)
 				int attack_levet = Donzo[i].attackplayer(rand()%4);
 				if (attack_levet>0 && dis[1] >= Donzo[i].GetDisWithL())
 				{
-					Lyubu.HP -= attack_levet * 100;
+					// FX 
+					FnScene scene(sID);
+
+					// remove the old one if necessary
+					if (Lyubu.gFXID != NULL) {
+						scene.DeleteGameFXSystem(Lyubu.gFXID);
+					}
+
+					// create a new game FX system
+					Lyubu.gFXID = scene.CreateGameFXSystem();
+
+					// case 1 : we create/move a dummy object on the hit position
+					FnGameFXSystem gxS(Lyubu.gFXID);
+
+					if (dummyID == FAILED_ID) {
+						dummyID = scene.CreateObject(MODEL);
+					}
+
+					FnObject dummy(dummyID);
+					float FX_pos[3] = { act_pos[0], act_pos[1], 80 };
+					dummy.SetPosition(FX_pos);
+
+					// play the FX on it
+					BOOL4 beOK = gxS.Load("HurtDir", TRUE);
+					if (beOK) {
+						gxS.SetParentObjectForAll(dummyID);
+					}
 					
+					Lyubu.HP -= attack_levet * 100;
+					Lyubu.SetBlood(Lyubu.HP);
 					if (Lyubu.HP < 100)
 					{
 						FnCharacter actor;
@@ -1633,16 +1729,16 @@ void Donzo_play(float act_pos[], int skip)
 		}//		if (!Robber[i].attacked_target || Robber[i].leave_with_L < 0)
 
 	} //for int i
-	if (anyone_live)
+	if (anyone_live && Donzo_appear!=2)
 		Donzo_appear = 1;
 	if (!anyone_live && next_wave == 0) // all die
 	{
 		next_wave = 150;
 	}
-	if (!anyone_live && Donzo_appear){
+	if (!anyone_live && Donzo_appear == 1){
 		event_num = 4;
 		dia.start_dialog(event_num);
-		Donzo_appear = 0;
+		Donzo_appear = 2;
 		movie_lock = 1;
 	}
 }
@@ -1651,9 +1747,9 @@ void Donzo_play(float act_pos[], int skip)
 void call_Robber(float loc_pos[], int num)
 {
 	float Robber_pos[3];
-	count_robber=num ;
 	
-	for (int i = 0; i < num; i++)
+	
+	for (int i = count_robber; i < count_robber+num; i++)
 	{
 		Robber_pos[0] = loc_pos[0] + (rand() % 400)*1.0f-200.0f;
 		Robber_pos[1] = loc_pos[1] + (rand() % 400)*1.0f-200.0f;
@@ -1661,7 +1757,7 @@ void call_Robber(float loc_pos[], int num)
 		Robber[i].Initiate(sID, terrainRoomID, beOK, Robber_pos);
 		
 	}
-	
+	count_robber+=num ;
 }
 
 //Lai
