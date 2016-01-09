@@ -62,16 +62,16 @@ void dialog::special_render2(float* pos){
 }
 void dialog::render_dialog(FnViewport vp,int lock){
 	if(!lock){
-		if ((event_num == 1 && (content_now == 0 || content_now == 1)) ||
-			(event_num == 3 && (content_now == 0 || content_now == 1))	){
-			vp.RenderSprites(dialogid, FALSE, TRUE);
-			vp.RenderSprites(picid, FALSE, TRUE);
+		//if ((event_num == 1 && (content_now == 0 || content_now == 1)) ||
+		//	(event_num == 3 && (content_now == 0 || content_now == 1))	){
+			//vp.RenderSprites(dialogid, FALSE, TRUE);
+			//vp.RenderSprites(picid, FALSE, TRUE);
 			vp.RenderSprites(fullid, FALSE, TRUE);
-		}		
-		else{
+		//}		
+		//else{
 			vp.RenderSprites(dialogid, FALSE, TRUE);
 			vp.RenderSprites(picid, FALSE, TRUE);
-		}
+		//}
 	}
 	if(fade_out != 1.0f || fade_in!= 0.0f)
 		next_content();
@@ -125,7 +125,7 @@ void dialog::set_pic(int num, FnSprite &sp2){
 		sp.SetImage("Lyu3", 0, NULL, 0, NULL, NULL, MANAGED_MEMORY, FALSE, FALSE);
 		sp.SetSize(200, 200);
 		sp.SetPosition(810 , 10, 0);
-		rgb[0] = 0.0f; rgb[1] = 1.0f; rgb[2] = 0.0f; rgb[3] = 0.5f;
+		rgb[0] = 1.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = 0.5f;
 		sp2.SetColor(rgb);			
 		sp2.SetPosition(10 ,10 ,0);
 	}
@@ -705,17 +705,11 @@ int dialog::next_content(){
 			float rgb[4];
 			rgb[0] = 0.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = fade_in;
 			sp.SetColor(rgb);
-			sp.SetPosition(0,0,1);
-			text0.ID(fullcontentID);
-			text0.SetArea(1024, 768);
-			text0.SetParent(full_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
-			text0.Begin();
-			text0.End();   // be sure to call this function when you finish the writing
+			sp.SetPosition(0,0,0);
 			//start fadeout
 			fade_in = fade_in + 0.05;
-			if(fade_in > 1.0f){
-				fade_in = 0.0f;
+			if(fade_in > 1.0){
+				fade_in = 0.0;
 				content_now = 0;
 			}
 			else
@@ -730,17 +724,11 @@ int dialog::next_content(){
 			float rgb[4];
 			rgb[0] = 0.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = fade_out;
 			sp.SetColor(rgb);
-			sp.SetPosition(0,0,1);
-			text0.ID(fullcontentID);
-			text0.SetArea(1024, 768);
-			text0.SetParent(full_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
-			text0.Begin();
-			text0.End();   // be sure to call this function when you finish the writing
+			sp.SetPosition(0,0,0);
 			//start fadeout
 			fade_out = fade_out - 0.05;
-			if(fade_out < 0.0f){
-				fade_out = 1.0f;
+			if(fade_out < 0.0){
+				fade_out = 1.0;
 				content_now = 1;
 			}
 			else
@@ -1027,7 +1015,7 @@ int dialog::next_content(){
 			text0.UseFont("新細明體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "骷骷:", 255, 255, 255, 255);
-			text0.Write(50, 60, "肖年~會場在這邊喔!", 255, 255, 255, 255);		
+			text0.Write(50, 60, "肖年~會場不在那邊喔!", 255, 255, 255, 255);		
 			text0.End();		
 			
 			sp.ID(dialog_backGID);

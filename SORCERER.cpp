@@ -29,12 +29,13 @@ void SORCERER::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK){
 	float fDir[3], uDir[3];
 	FnCharacter actor;
 	actor.ID(id);
-	pos[0] = 3690.0f; pos[1] = -3408.0f; pos[2] = 1000.0f;
+	pos[0] = 2497; pos[1] = -2083; pos[2] = 1000.0f;
 	fDir[0] = -1.0f; fDir[1] = -1.0f; fDir[2] = 0.0f;
 	uDir[0] = 0.0f; uDir[1] = 0.0f; uDir[2] = 1.0f;
 	actor.SetDirection(fDir, uDir);
 
 	actor.SetTerrainRoom(terrainRoomID, 10.0f);
+	actor.TurnRight(-40.0f);
 	beOK = actor.PutOnTerrain(pos);
 	//blood
 	// get the base object 

@@ -90,6 +90,8 @@ int count_donzo = 0;
 void call_Donzo(float[], int);
 void Robber_Donzo(float[], int);
 
+void cal_ud(float[], float[], float[], float[]);
+
 //dialog
 MEDIAid mmID, mmID2;
 MEDIAid mmID_background;
@@ -219,8 +221,11 @@ void movie1(int skip){
 void do_event(int skip){
 	FnCharacter actor;
 	FnCharacter foot;
+	FnCamera camera;
+
 	actor.ID(Lyubu.id);
 	foot.ID(footman.id);
+	camera.ID(cID);
 
 	FyBeginMedia("Data\\NTU6\\Media", 2);
 
@@ -267,6 +272,16 @@ void do_event(int skip){
 			frame_cal = 0;
 		}
 	}
+	else if (event_num == 1 && dia.content_now == 7){
+		if (!play_media){
+			mmID_background = FyCreateMediaPlayer("dialog02.mp3", 0, 0, 800, 600);
+			mP0.Object(mmID_background);
+			mP0.Play(ONCE);
+			play_media++;
+		}
+		movie_lock = 0;
+	}
+	
 	else if (event_num == 1 && dia.content_now == 10){
 		Lyubu.SetFX();
 		movie_lock = 0;
@@ -283,6 +298,7 @@ void do_event(int skip){
 			frame_cal++;
 			// foot damage musicFX
 			//FyEndMedia();
+			mP0.Stop();
 			mmID = FyCreateMediaPlayer("damage6.mp3", 0, 0, 800, 600);
 			FnMedia mP;
 			mP.Object(mmID);
@@ -321,6 +337,7 @@ void do_event(int skip){
 	}
 	else if (event_num == 1 && dia.content_now == 16){
 		if (!play_media){
+			mP0.Stop();
 			mmID = FyCreateMediaPlayer("pokemonGET.mp3", 0, 0, 800, 600);
 			FnMedia mP;
 			mP.Object(mmID);
@@ -329,12 +346,40 @@ void do_event(int skip){
 		}
 		movie_lock = 0;
 	}
-	else if (event_num == 3 && dia.content_now == 1){
-		frame_cal++;
-		if (frame_cal == 10){
-			dia.next_content();
-			frame_cal = 0;
+	// robber appear!!
+	else if (event_num == 2 && dia.content_now == 1){
+		if (!play_media){
+			mmID_background = FyCreateMediaPlayer("battle.mp3", 0, 0, 800, 600);
+			mP0.Object(mmID_background);
+			mP0.Play(ONCE);
+			play_media++;
 		}
+		movie_lock = 0;
+	}
+	else if (event_num == 3 && dia.content_now == 1){
+		mP0.Stop();
+		
+		float pos[3] = { -1554, 2409, 0.987 };
+		actor.SetPosition(pos);
+		float c_pos[3] = { -2336, 2016, 250 };
+		float fdir[3], udir[3];
+		cal_ud(fdir, udir, pos, c_pos);
+		camera.SetPosition(c_pos);
+		camera.SetDirection(fdir, udir);
+		Lyubu.curPoseID = Lyubu.idleID;
+		actor.SetCurrentAction(NULL, 0, Lyubu.curPoseID);
+		actor.Play(START, 0.0f, FALSE, TRUE);
+
+		// put DonZo on terrain and Lyubu turn right and play music
+		if (!play_media){
+			actor.TurnRight(90.0f);
+			play_media++;
+			float d_pos[2] = { 30, 2403 };
+			call_Donzo(d_pos, 1);
+		}
+		dia.next_content();
+		frame_cal = 0;
+		movie_lock = 0;
 	}
 	else if (event_num == 3 && dia.content_now == 2){
 		dia.next_content();
@@ -343,6 +388,12 @@ void do_event(int skip){
 		frame_cal++;
 		if (frame_cal<24){
 			movie4();
+			if (frame_cal == 23)
+			{
+				mmID_background = FyCreateMediaPlayer("bossbattle.mp3", 0, 0, 800, 600);
+				mP0.Object(mmID_background);
+				mP0.Play(ONCE);
+			}
 		}
 		else if (frame_cal >= 36 && frame_cal < 60){
 			movie4();
@@ -350,7 +401,27 @@ void do_event(int skip){
 		else if (frame_cal == 60){
 			dia.next_content();
 			frame_cal = 0;
+			float fdir[3] = {-1181,20,0}, udir[3] = { 0, 0, 1 };
+			actor.ID(Donzo[0].id);
+			Donzo[0].curPoseID = Donzo[0].runID;
+			actor.SetCurrentAction(NULL, 0, Donzo[0].runID);
+			actor.Play(START, 0.0f, FALSE, TRUE);
+			actor.SetDirection(fdir, udir);
 		}
+	}
+	else if (event_num == 3 && dia.content_now == 6){
+		actor.ID(Donzo[0].id);
+		float pos[3];
+		actor.GetPosition(pos);
+		if (pos[0] < -1151 ){
+			Donzo[0].curPoseID = Donzo[0].idleID;
+			actor.SetCurrentAction(NULL, 0, Donzo[0].idleID);
+			actor.Play(START, 0.0f, FALSE, TRUE);
+			dia.next_content();
+		}
+		else
+			actor.MoveForward(10.0f, TRUE, FALSE, 0.0f, TRUE);
+		actor.Play(LOOP, (float)skip, FALSE, TRUE);
 	}
 	else
 		movie_lock = 0;
@@ -722,6 +793,7 @@ void GameAI(int skip)
 		if (dist < 50){
 			event_num = 3;
 			dia.start_dialog(event_num);
+			robber_appear_lock-=2;
 			return;
 		}
 		dist = sqrt(pow((act_pos[0] - 2300), 2) + pow((act_pos[1] + 2705), 2));
@@ -903,6 +975,8 @@ void GameAI(int skip)
 		}
 		
 	}
+	
+
 	
 	// play game FX
 	if (Lyubu.gFXID != FAILED_ID) {
@@ -1359,6 +1433,7 @@ void call_Donzo(float loc_pos[], int num)
 }
 
 //Lai
+int Donzo_appear = 0;
 void Donzo_play(float act_pos[], int skip)
 {
 
@@ -1529,10 +1604,16 @@ void Donzo_play(float act_pos[], int skip)
 		}//		if (!Robber[i].attacked_target || Robber[i].leave_with_L < 0)
 
 	} //for int i
-
+	if (anyone_live)
+		Donzo_appear = 1;
 	if (!anyone_live && next_wave == 0) // all die
 	{
 		next_wave = 150;
+	}
+	if (!anyone_live && Donzo_appear){
+		event_num = 4;
+		dia.start_dialog(event_num);
+		Donzo_appear = 0;
 	}
 }
 
