@@ -106,8 +106,8 @@ void dialog::end_content(){
 	sp.SetSize(800, 200);
 
 	text0.ID(contentID);
-	text0.SetArea(800, 200);
-	text0.SetParent(dialog_backGID);
+	//text0.SetArea(800, 200);
+	//text0.SetParent(dialog_backGID);
 	rgb[0] = 0.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = 0.0;
 	sp.SetColor(rgb);			
 	text0.UseFont("標楷體", 25, TRUE, FALSE);			
@@ -1071,8 +1071,8 @@ int dialog::next_content(){
 
 
 			text0.ID(fullcontentID);
-			text0.SetArea(1024, 768);
-			text0.SetParent(full_backGID);
+			//text0.SetArea(1024, 768);
+			//text0.SetParent(full_backGID);
 			text0.UseFont("標楷體", 40, TRUE, FALSE);
 			text0.Begin();
 			text0.Write(150, 300, "消滅了董卓", 255, 255, 255, 255);
@@ -1111,8 +1111,8 @@ int dialog::next_content(){
 			FnSpriteText text0;
 
 			text0.ID(fullcontentID);
-			text0.SetArea(1024, 768);
-			text0.SetParent(full_backGID);
+			//text0.SetArea(1024, 768);
+			//text0.SetParent(full_backGID);
 			text0.UseFont("標楷體", 40, TRUE, FALSE);
 			text0.Begin();
 			text0.Write(310, 350, "你死了...請重新來過", 255, 255, 255, 255);
