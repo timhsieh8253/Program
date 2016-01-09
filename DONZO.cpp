@@ -95,7 +95,7 @@ void DONZO::isattack(int index){
 		is_attack_frame--;
 		if (damaged_type == 1)
 		{
-			HP -= 1;
+			HP -= 6;
 		}
 		else if (damaged_type == 2)
 		{
@@ -112,7 +112,8 @@ void DONZO::isattack(int index){
 	if (curPoseID != dieID && HP <= 0){
 		is_attack_frame = 0;//Lai
 		attacked_target = FALSE;//Lai
-		clean_clock = 90;
+		clean_clock = 150;
+		HP = 0;
 		curPoseID = dieID;
 		actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
 		FnMedia mp;

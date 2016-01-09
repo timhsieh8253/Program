@@ -9,7 +9,7 @@ public:
 
 	void Initiate(SCENEid, ROOMid, BOOL4&,float[]);
 	void isattack(int); //be attacked
-	void attackplayer(int);
+	int attackplayer(int);
 	void play(int, int);
 
 	int GetState();
@@ -82,5 +82,7 @@ private:
 	int find_way;
 	int clean_clock;
 	
+	int hit_time[5];//*******************
+	int hit_level;//******************
 };
 

@@ -161,7 +161,7 @@ void LYUBU::play(int attack_on_delay, int skip){
 
 		if (HP>0 && attack_on_delay == 0 && is_attack_frame==0)
 		{
-			curPoseID = idleID;
+			curPoseID = runID;
 			actor.SetCurrentAction(0, NULL, curPoseID, 5.0f);
 			actor.Play(START, (float)skip, FALSE, TRUE);
 			action_lock = FALSE;

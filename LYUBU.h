@@ -40,6 +40,7 @@ public:
 	int is_attack;
 	int is_attack_frame;//********
 	int blood_size;
+	bool action_lock;
 
 	SCENEid Lyubu_blood, Lyubu_head;
 	OBJECTid Lyubu_backGID,headID;
@@ -48,7 +49,7 @@ private:
 	//LyuBu old face direction
 	float old_f[3]; 
 
-	bool action_lock;
+	
 
 };
 

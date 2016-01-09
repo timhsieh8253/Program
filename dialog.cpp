@@ -29,7 +29,7 @@ void dialog::special_render(float* pos){
 		text0.ID(contentID);
 		text0.SetArea(800, 200);
 		text0.SetParent(dialog_backGID);
-		text0.UseFont("新細明體", 50, TRUE, FALSE);
+		text0.UseFont("標楷體", 50, TRUE, FALSE);
 		text0.Begin();
 		text0.Write(20, 20, "!!", 255, 255, 0, 255);
 		text0.End();
@@ -50,7 +50,7 @@ void dialog::special_render2(float* pos){
 	text0.ID(contentID);
 	text0.SetArea(800, 200);
 	text0.SetParent(dialog_backGID);
-	text0.UseFont("新細明體", 50, TRUE, FALSE);
+	text0.UseFont("標楷體", 50, TRUE, FALSE);
 	text0.Begin();
 	text0.Write(20, 20, "!!", 255, 255, 0, 255);
 	text0.End();
@@ -91,6 +91,10 @@ void dialog::start_dialog(int num){
 		content_end = 5;
 	else if(num == 5)
 		content_end = 0;
+	else if (num == 6)
+		content_end = 99;
+	else if (num == 7)
+		content_end = 99;
 	next_content();
 }
 
@@ -106,7 +110,7 @@ void dialog::end_content(){
 	text0.SetParent(dialog_backGID);
 	rgb[0] = 0.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = 0.0;
 	sp.SetColor(rgb);			
-	text0.UseFont("新細明體", 25, TRUE, FALSE);			
+	text0.UseFont("標楷體", 25, TRUE, FALSE);			
 	// show the caption on the sprite text at (10, 10) position in white color
 	text0.Begin();
 	text0.End();   // be sure to call this function when you finish the writing
@@ -211,15 +215,15 @@ int dialog::next_content(){
 			float rgb[4];
 			rgb[0] = 0.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = 1.0f;
 			sp.SetColor(rgb);
-			sp.SetPosition(0,0,1);
+			sp.SetPosition(0, 0, 1);
 			text0.ID(fullcontentID);
 			text0.SetArea(1024, 768);
 			text0.SetParent(full_backGID);
-			text0.UseFont("新細明體", 40, TRUE, FALSE);			
+			text0.UseFont("標楷體", 40, TRUE, FALSE);
 			text0.Begin();
-			text0.Write(300, 384, "民國初年，呂布和董卓分手後，", 255, 255, 255, 255);
-			text0.Write(300, 444, "呂布踏上尋找紅粉佳人的旅程...", 255, 255, 255, 255);
-			text0.Write(300, 504, "(按空白鍵以開始遊戲)", 255, 255, 255, 255);
+			text0.Write(240, 324, "民國初年，呂布和董卓分手後，", 255, 255, 255, 255);
+			text0.Write(240, 384, "呂布踏上尋找紅粉佳人的旅程...", 255, 255, 255, 255);
+			text0.Write(240, 434, "(按空白鍵以開始遊戲)", 255, 255, 255, 255);
 			text0.End();   // be sure to call this function when you finish the writing
 			
 		}
@@ -236,7 +240,7 @@ int dialog::next_content(){
 			text0.ID(fullcontentID);
 			text0.SetArea(1024, 768);
 			text0.SetParent(full_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.End();   // be sure to call this function when you finish the writing
 			//start fadeout
@@ -255,7 +259,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);
+			text0.UseFont("標楷體", 25, TRUE, FALSE);
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "啦啦啦~呂布遊長安~~~", 255, 255, 255, 255);
@@ -275,7 +279,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "路上怎麼會有一個死人骨頭?!?!", 255, 255, 255, 255);
@@ -293,7 +297,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "骷髏:", 255, 255, 255, 255);
 			text0.Write(50, 60, "嘿嘿嘿嘿.......", 255, 255, 255, 255);
@@ -311,7 +315,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);		
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "你...你是誰??你想幹嘛?", 255, 255, 255, 255);
@@ -329,7 +333,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "骷髏:", 255, 255, 255, 255);
 			text0.Write(50, 60, "這位英雄，我是誰不重要。", 255, 255, 255, 255);
@@ -347,7 +351,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "骷髏:", 255, 255, 255, 255);
 			text0.Write(50, 60, "一定是個百年難得一見的練舞奇才，", 255, 255, 255, 255);	
@@ -365,7 +369,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			//text0.Write(20, 20, "骷髏:", 255, 255, 255, 255);
 			text0.Write(50, 60, "按下S鍵施展學習並施展舞林秘笈", 255, 255, 255, 255);			
@@ -383,7 +387,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "骷髏:", 255, 255, 255, 255);
 			text0.Write(50, 60, "啊....你打我QQ", 255, 255, 255, 255);	
@@ -401,7 +405,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "骷髏:", 255, 255, 255, 255);
 			text0.Write(50, 60, "直到膝蓋中了一箭...."	, 255, 255, 255, 255);						
@@ -418,7 +422,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "..................."	, 255, 255, 255, 255);						
@@ -436,7 +440,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "疑? 骨頭堆裡面怎麼有封信?"	, 255, 255, 255, 255);						
@@ -454,7 +458,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(50, 60, "呂布撿起了一封信", 255, 255, 255, 255);		
 			text0.End();		
@@ -470,7 +474,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "信:", 255, 255, 255, 255);
 			text0.Write(50, 60, "世紀舞王大賽徵求各方勇士踴躍參加，", 255, 255, 255, 255);	
@@ -488,10 +492,10 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "信:", 255, 255, 255, 255);
-			text0.Write(50, 60, "憑此信參加，任信不認人", 255, 255, 255, 255);			
+			text0.Write(50, 60, "憑此信參加，認信不認人!!!", 255, 255, 255, 255);			
 			text0.End();		
 			
 			sp.ID(dialog_backGID);
@@ -505,7 +509,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "竟..竟然是我最愛的貂蟬", 255, 255, 255, 255);						
@@ -523,7 +527,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "小貂貂，我來了!!!!!!!!!!!!!!!", 255, 255, 255, 255);						
@@ -541,7 +545,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(50, 60, "恭喜玩家呂布獲得任務：參加舞會", 255, 255, 255, 255);		
 			text0.End();		
@@ -557,7 +561,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(50, 60, "請玩家保護信件直到會場", 255, 255, 255, 255);		
 			text0.End();		
@@ -576,7 +580,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "強盜A:", 255, 255, 255, 255);
 			text0.Write(50, 60, "站住!!!", 255, 255, 255, 255);
@@ -594,7 +598,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "你們是誰?", 255, 255, 255, 255);
@@ -613,7 +617,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "強盜B:", 255, 255, 255, 255);
 			text0.Write(50, 60, "哼!! 貂蟬是屬於我們的!", 255, 255, 255, 255);
@@ -632,7 +636,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "強盜B:", 255, 255, 255, 255);
 			text0.Write(50, 60, "還不速速交出參加信!!", 255, 255, 255, 255);
@@ -650,7 +654,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "一群小丑!!", 255, 255, 255, 255);
@@ -669,7 +673,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "強盜B:", 255, 255, 255, 255);
 			text0.Write(50, 60, "兄弟們!!殺!!!!!", 255, 255, 255, 255);
@@ -686,7 +690,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "強盜A:", 255, 255, 255, 255);
 			text0.Write(50, 60, "殺!!!!!", 255, 255, 255, 255);
@@ -743,7 +747,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "呼，費盡千辛萬苦，", 255, 255, 255, 255);						
@@ -765,7 +769,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布:", 255, 255, 255, 255);
 			text0.Write(50, 60, "......?", 255, 255, 255, 255);						
@@ -787,7 +791,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "貂蟬(DonZo):", 255, 255, 255, 255);
 			text0.Write(50, 60, "你終於來了，小布布，", 255, 255, 255, 255);	
@@ -805,7 +809,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布：", 255, 255, 255, 255);
 			text0.Write(50, 60, "不...不要過來", 255, 255, 255, 255);	
@@ -823,7 +827,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布：", 255, 255, 255, 255);
 			text0.Write(50, 60, "再過來我揍死你!!", 255, 255, 255, 255);	
@@ -840,7 +844,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "貂蟬(DonZo):", 255, 255, 255, 255);
 			text0.Write(50, 60, "啊，真是太切心了，", 255, 255, 255, 255);	
@@ -858,7 +862,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "貂蟬(DonZo):", 255, 255, 255, 255);
 			text0.Write(50, 60, "既然得不到你，", 255, 255, 255, 255);	
@@ -876,7 +880,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(50, 60, "任務觸發：消滅董卓", 255, 255, 255, 255);		
 			text0.End();		
@@ -892,7 +896,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);
+			text0.UseFont("標楷體", 25, TRUE, FALSE);
 			text0.Begin();
 			text0.Write(50, 60, "呂布進入憤怒模式", 255, 255, 255, 255);
 			text0.End();
@@ -908,7 +912,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(50, 60, "請保護呂布，免於董卓的荼毒", 255, 255, 255, 255);		
 			text0.End();		
@@ -926,7 +930,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "貂蟬(DonZo):", 255, 255, 255, 255);
 			text0.Write(50, 60, "小布布，你竟然辣手摧花QAQ", 255, 255, 255, 255);		
@@ -943,7 +947,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "貂蟬(DonZo):", 255, 255, 255, 255);
 			text0.Write(50, 60, "哼! 你以為這樣就結束了嗎?", 255, 255, 255, 255);
@@ -961,7 +965,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "貂蟬(DonZo):", 255, 255, 255, 255);
 			text0.Write(50, 60, "殺了一個我，還有千千萬萬個我!!", 255, 255, 255, 255);
@@ -979,7 +983,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "呂布：", 255, 255, 255, 255);
 			text0.Write(50, 60, "這.....", 255, 255, 255, 255);	
@@ -996,7 +1000,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(50, 60, "最終任務：消滅千千萬萬個董卓", 255, 255, 255, 255);		
 			text0.End();		
@@ -1012,7 +1016,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(50, 60, "請消滅999個董卓的分身", 255, 255, 255, 255);		
 			text0.End();		
@@ -1030,7 +1034,7 @@ int dialog::next_content(){
 			text0.ID(contentID);
 			text0.SetArea(800, 200);
 			text0.SetParent(dialog_backGID);
-			text0.UseFont("新細明體", 25, TRUE, FALSE);			
+			text0.UseFont("標楷體", 25, TRUE, FALSE);			
 			text0.Begin();
 			text0.Write(20, 20, "骷骷:", 255, 255, 255, 255);
 			text0.Write(50, 60, "肖年~會場不在那邊喔!", 255, 255, 255, 255);		
@@ -1039,6 +1043,86 @@ int dialog::next_content(){
 			sp.ID(dialog_backGID);
 			sp.SetSize(800, 200);
 			set_pic(8, sp);
+		}
+	}
+	else if (event_num == 6){
+		if (content_now == 0){
+			FnSprite sp;
+			FnSpriteText text0;
+
+			sp.ID(full_backGID);
+			sp.SetSize(1024, 768);
+			float rgb[4];
+			rgb[0] = 0.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = fade_in;
+			sp.SetColor(rgb);
+			sp.SetPosition(0, 0, 0);
+			//start fadeout
+			fade_in = fade_in + 0.05;
+			if (fade_in > 1.0){
+				fade_in = 0.0;
+				content_now = 0;
+			}
+			else
+				content_now = -1;
+		}
+		else if (content_now == 1){
+			FnSprite sp;
+			FnSpriteText text0;
+
+
+			text0.ID(fullcontentID);
+			text0.SetArea(1024, 768);
+			text0.SetParent(full_backGID);
+			text0.UseFont("標楷體", 40, TRUE, FALSE);
+			text0.Begin();
+			text0.Write(150, 300, "消滅了董卓", 255, 255, 255, 255);
+			text0.Write(250, 390, "呂布再次踏上了尋找佳人的旅程...", 255, 255, 255, 255);
+			text0.End();   // be sure to call this function when you finish the writing
+			sp.ID(full_backGID);
+			sp.SetSize(1024, 768);
+			float rgb[4];
+			rgb[0] = 0.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = 1.0f;
+			sp.SetColor(rgb);
+			sp.SetPosition(0, 0, 0);
+		}
+	}
+	else if (event_num == 7){
+		if (content_now == 0){
+			FnSprite sp;
+			FnSpriteText text0;
+
+			sp.ID(full_backGID);
+			sp.SetSize(1024, 768);
+			float rgb[4];
+			rgb[0] = 0.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = fade_in;
+			sp.SetColor(rgb);
+			sp.SetPosition(0, 0, 0);
+			//start fadeout
+			fade_in = fade_in + 0.05;
+			if (fade_in > 1.0){
+				fade_in = 0.0;
+				content_now = 0;
+			}
+			else
+				content_now = -1;
+		}
+		else if (content_now == 1){
+			FnSprite sp;
+			FnSpriteText text0;
+
+			text0.ID(fullcontentID);
+			text0.SetArea(1024, 768);
+			text0.SetParent(full_backGID);
+			text0.UseFont("標楷體", 40, TRUE, FALSE);
+			text0.Begin();
+			text0.Write(310, 350, "你死了...請重新來過", 255, 255, 255, 255);
+			text0.End();   // be sure to call this function when you finish the writing
+			sp.ID(full_backGID);
+			sp.SetSize(1024, 768);
+			float rgb[4];
+			rgb[0] = 0.0f; rgb[1] = 0.0f; rgb[2] = 0.0f; rgb[3] = 1.0f;
+			sp.SetColor(rgb);
+			sp.SetPosition(0, 0, 0);
 		}
 	}
 	content_now++;

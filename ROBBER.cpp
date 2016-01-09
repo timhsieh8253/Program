@@ -81,6 +81,9 @@ void ROBBER::Initiate(SCENEid sID, ROOMid terrainRoomID, BOOL4 &beOK, float init
 	find_way = rand() % 2;
 	if (find_way == 0) find_way = -1;
 
+	for (int i = 0; i < 5; i++)
+		hit_time[i] = -1;//*******************
+
 }
 void ROBBER::isattack(int attack_on_delay){
 
@@ -100,7 +103,7 @@ void ROBBER::isattack(int attack_on_delay){
 		is_attack_frame--;
 		if (damaged_type == 1)
 		{
-			HP -= 1;
+			HP -= 6;
 		}
 		else if (damaged_type == 2)
 		{
@@ -116,6 +119,7 @@ void ROBBER::isattack(int attack_on_delay){
 
 	if (curPoseID != dieID && HP <= 0){
 		is_attack_frame = 0;//Lai
+		HP = 0;
 		attacked_target = FALSE;//Lai
 		clean_clock = 90;
 		curPoseID = dieID;
@@ -198,7 +202,7 @@ void ROBBER::play(int attack_on_delay, int skip){
 	
 }
 //Lai
-void ROBBER::attackplayer(int atk_lv)
+int ROBBER::attackplayer(int atk_lv)
 { /*
 	light_attack1ID = actor.GetBodyAction(NULL, "NormalAttack1"); 35f
 	light_attack2ID = actor.GetBodyAction(NULL, "NormalAttack2"); 25f
@@ -213,16 +217,20 @@ void ROBBER::attackplayer(int atk_lv)
 		{
 			attack_clock = 34;
 			curPoseID = light_attack1ID;
+			 hit_time[0]=10;//*******************
+	
 		}
 		else if (atk_lv == 1)
 		{
 			attack_clock = 24;
 			curPoseID = light_attack2ID;
+			hit_time[0] = 10;//*******************
 		}
 		else if (atk_lv == 2)
 		{
 			attack_clock = 29;
 			curPoseID = heavy_attackID;
+			hit_time[0] = 10;//*******************
 			actor.MoveForward(2.0f, TRUE, FALSE, 0.0f, TRUE);
 
 		}
@@ -230,13 +238,22 @@ void ROBBER::attackplayer(int atk_lv)
 	else if (attack_clock > 0)
 	{
 		attack_clock--;
+
+
 		if (attack_clock == 0)
 		{
-
 			leave_with_L = 0;
+
+		}
+
+		for (int i = 0; i < 5; i++)
+		if (attack_clock == hit_time[i])
+		{
+			hit_time[i] = -1;
+			return 1;
 		}
 	}
-
+	return -1;
 	}
 
 void ROBBER::SetPosition(float fwd)

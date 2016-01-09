@@ -67,7 +67,7 @@ public:
 
 	//Music
 	MEDIAid mmID;
-
+	int clean_clock;
 
 private:
 	float old_f[3];
@@ -81,7 +81,7 @@ private:
 	int stop_flag;
 	int leave_with_L;
 	int find_way;
-	int clean_clock;
+	
 	int hit_time[5];//*******************
 	int hit_level;//******************
 };
