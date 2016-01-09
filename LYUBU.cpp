@@ -146,7 +146,7 @@ void LYUBU::play(int attack_on_delay, int skip){
 	}
 */
 
-	if (((curPoseID != runID && curPoseID != idleID  && curPoseID != dieID) || action_lock) && attack_on_delay < 50)
+	if (((curPoseID != runID && curPoseID != idleID  && curPoseID != dieID) || action_lock) )
 	{
 		if ( is_attack_frame != 0) 	 is_attack_frame --;
 

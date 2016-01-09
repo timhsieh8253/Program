@@ -78,7 +78,9 @@ void LyuBu_turn();
 BOOL4 beOK;
 
 //Lai
-int Ltar=-1;
+int wude_time=0;
+int angary_time = 0;
+int angary_HP=0;
 
 int count_robber = 0;
 char live=0;
@@ -379,6 +381,8 @@ void do_event(int skip){
 			float d_pos[2] = { 30, 2403 };
 			call_Donzo(d_pos, 1);
 			angary_mode = 1;
+			angary_time = 75;
+			angary_HP = (Lyubu.maxHP - Lyubu.HP) / (angary_time);
 		}
 		dia.next_content();
 		frame_cal = 0;
@@ -769,6 +773,16 @@ void GameAI(int skip)
 	if (frame_clock < 1) frame_clock = 300;
 	else frame_clock--;
 
+	if (wude_time>0) wude_time--; // lyubu will not do damged action in wude_time, but HP still can be reduced
+
+	if (angary_time > 0)
+	{
+		angary_time--;
+		Lyubu.HP += angary_HP;
+		if (angary_time == 1)
+			Lyubu.HP = Lyubu.maxHP;
+		Lyubu.SetBlood(Lyubu.HP);
+	}
 
 	FnCamera camera;
 	FnCharacter actor, act_Robber, act_DonZo;
@@ -1170,7 +1184,7 @@ Keyboard control by Tim
 ------------------*/
 void Keyboardfunc(BYTE code, BOOL4 value)
 {
-	if (event_num || Lyubu.HP <= 0){
+	if (event_num || Lyubu.HP <= 0 || Lyubu.action_lock){
 		return;
 	}
 	FnCharacter actor, act_Robber, act_DonZo;
@@ -1193,12 +1207,13 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 
 			Lyubu.curPoseID = Lyubu.normal_attack1ID;
 			actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);
-			//actor.Play(START, 0.0f, FALSE, TRUE);
+			attack_on_delay = 26;
+			Lyubu.play(attack_on_delay, 0);
 			Lyubu.GetOldFaceDir()[0] = act_f[0];
 			Lyubu.GetOldFaceDir()[1] = act_f[1];
 			Lyubu.GetOldFaceDir()[2] = act_f[2];
 			//Lai			
-			attack_on_delay = 26;
+			
 			int tar; //find target
 			bool tar_flag = FALSE;
 			for (int i = 0; i < count_donzo; i++)//find donzo
@@ -1223,7 +1238,7 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 				Donzo[tar].attacked_target = TRUE;//Lai 0105
 					//act_DonZo.SetDirection(DonZo_new_f, DonZo_d);
 					actor.SetDirection(act_new_f, act_d);
-					Ltar = tar;
+					
 			}
 			
 
@@ -1310,42 +1325,48 @@ void Keyboardfunc(BYTE code, BOOL4 value)
 			
 			
 			Lyubu.curPoseID = Lyubu.heavy_attack2ID;
+				//Lai
 			actor.SetCurrentAction(0, NULL, Lyubu.curPoseID, 5.0f);
-			//actor.Play(START, 0.0f, FALSE, TRUE);
+			attack_on_delay = 58;
+			Lyubu.play(attack_on_delay, 0);
 			Lyubu.GetOldFaceDir()[0] = act_f[0];
 			Lyubu.GetOldFaceDir()[1] = act_f[1];
 			Lyubu.GetOldFaceDir()[2] = act_f[2];
-
-			//Lai
-			if (attack_on_delay == 0)
-				attack_on_delay = 58;
+			
 			int tar = 0;
-
+			bool attack_flag = FALSE;
 			for (int i = 0; i < count_donzo; i++) // find donzo
 				{
 				if (Donzo[i].GetDisWithL()>150 || Donzo[i].HP == 0) continue;	
 				if (Donzo[i].HP < Donzo[tar].HP) tar = i;
+				attack_flag = TRUE;
 				Donzo[i].attacked_target = TRUE;//Lai 0105
 				Donzo[i].curPoseID = Donzo[i].heavy_damagedID;
-				}				
+				}
+			if (Donzo[tar].HP>0)
+			{
+				float act_new_f[3] = { -act_pos[0] + Donzo[tar].pos[0], -act_pos[1] + Donzo[tar].pos[1], -act_pos[2] + Donzo[tar].pos[2] };
+				actor.SetDirection(act_new_f, act_d);
+			}
+			if (!attack_flag)
+			{
+				tar = 0;
 				for (int i = 0; i < count_robber; i++)
 				{
 					if (Robber[i].GetDisWithL()>150 || Robber[i].HP == 0) continue;
 					if (Robber[i].HP < Robber[tar].HP) tar = i;
 					Robber[i].attacked_target = TRUE;//Lai 0105
 					Robber[i].curPoseID = Robber[i].damaged2ID;
-					
+
 				}
 				if (Robber[tar].HP>0)
 				{
-					//Tim vector between actor and Robber
 					float rob_new_f[3] = { act_pos[0] - Robber[tar].pos[0], act_pos[1] - Robber[tar].pos[1], act_pos[2] - Robber[tar].pos[2] };
 					float act_new_f[3] = { -act_pos[0] + Robber[tar].pos[0], -act_pos[1] + Robber[tar].pos[1], -act_pos[2] + Robber[tar].pos[2] };
-
-					//act_Robber.SetDirection(rob_new_f, Robber_d);
+					Robber[tar].actor.SetDirection(rob_new_f, Robber_d);
 					actor.SetDirection(act_new_f, act_d);
 				}
-			
+			}
 		}
 		else if (code == FY_L)
 		{
@@ -1706,8 +1727,10 @@ void Donzo_play(float act_pos[], int skip)
 						Lyubu.HP = 100;
 					Lyubu.SetBlood(Lyubu.HP);
 					
-					
-						if (attack_levet>3)
+					if (wude_time == 0)
+					{
+						wude_time = 60;
+						if (attack_levet > 3)
 						{
 							Lyubu.curPoseID = Lyubu.heavy_damagedID;
 							Lyubu.is_attack_frame = 24;
@@ -1717,7 +1740,7 @@ void Donzo_play(float act_pos[], int skip)
 							Lyubu.is_attack_frame = 19;
 							Lyubu.curPoseID = Lyubu.left_damagedID;
 						}
-					
+					}
 				}
 			}
 
