@@ -423,6 +423,34 @@ void do_event(int skip){
 			actor.MoveForward(10.0f, TRUE, FALSE, 0.0f, TRUE);
 		actor.Play(LOOP, (float)skip, FALSE, TRUE);
 	}
+	else if (event_num == 4 && dia.content_now == 1){
+		frame_cal++;
+		actor.Play(LOOP, (float)skip, FALSE, TRUE);
+		if (frame_cal == 50){
+			Lyubu.curPoseID = Lyubu.idleID;
+			actor.SetCurrentAction(NULL, 0, Lyubu.idleID);
+			actor.Play(START, 0.0f, FALSE, TRUE);
+		}
+		else if (0 < frame_cal && frame_cal < 150){
+			actor.ID(Donzo[0].id);
+			actor.Play(ONCE, (float)skip, FALSE, TRUE);
+		}
+		else if (frame_cal > 150){
+			frame_cal = 0;
+			movie_lock = 0;
+		}
+		
+	}
+	else if (event_num == 4 && dia.content_now == 3){
+		// put many DonZo 
+		if (!play_media){
+			play_media++;
+			float pos[3] ;
+			actor.GetPosition(pos);
+			call_Donzo(pos, 10);
+		}
+		movie_lock = 0;
+	}
 	else
 		movie_lock = 0;
 }
@@ -1418,6 +1446,7 @@ void Movement(BYTE code, BOOL4 value)
 //Lai
 void call_Donzo(float loc_pos[], int num)
 {
+	FySetTexturePath("Data\\NTU6\\Characters");
 	float Donzo_pos[3];
 	count_donzo = num;
 
@@ -1614,6 +1643,7 @@ void Donzo_play(float act_pos[], int skip)
 		event_num = 4;
 		dia.start_dialog(event_num);
 		Donzo_appear = 0;
+		movie_lock = 1;
 	}
 }
 
